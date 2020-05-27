@@ -1,0 +1,29 @@
+{
+  "name": "plug",
+  "version": "0.1.0",
+  "description": "TBD",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf ./build && mkdir ./build && cp public/* build && babel -d ./build ./src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ItsKerolos/plug.git"
+  },
+  "author": "Kerolos Zaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ItsKerolos/plug/issues"
+  },
+  "homepage": "https://github.com/ItsKerolos/plug#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.0",
+    "@babel/core": "^7.10.0",
+    "@babel/preset-env": "^7.10.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.1.0",
+    "eslint-plugin-gjs": "file:../eslint-plugin-gjs",
+    "eslint-plugin-security": "^1.4.0",
+    "gnome-shell-extension-types": "0.0.1"
+  }
+}
