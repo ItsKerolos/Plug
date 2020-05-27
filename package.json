@@ -4,7 +4,13 @@
   "description": "TBD",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf ./build && mkdir ./build && cp public/* build && babel -d ./build ./src"
+    "clean-build": "rm -rf ./build && mkdir ./build",
+    "clean-gnome": "rm -rf ~/.local/share/gnome-shell/extensions/plug@ker0olos && mkdir ~/.local/share/gnome-shell/extensions/plug@ker0olos",
+
+    "start": "npm run clean-gnome && npm run build && cp build/* ~/.local/share/gnome-shell/extensions/plug@ker0olos",
+    "build": "npm run clean-build && cp public/* build && babel -d ./build ./src",
+    
+    "watch": "journalctl -f -o cat /usr/bin/gnome-shell"
   },
   "repository": {
     "type": "git",
