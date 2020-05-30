@@ -1,0 +1,20 @@
+.label-box > .popup-menu-icon
+{
+  margin-right: 6px;
+}
+
+.slider-box
+{
+  min-width: 200px;
+  padding: 3px 0;
+}
+
+.slider-details-box > StLabel
+{
+  margin: 0 0 8px 0;
+}
+
+.slider-details-box > StIcon
+{
+  margin: 0 6px 8px 0;
+}

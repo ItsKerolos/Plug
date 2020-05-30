@@ -1,7 +1,7 @@
 {
   "uuid": "plug@ker0olos",
   "name": "Plug",
-  "description": "TBD",
+  "description": "More GNOME extensions.",
   "version": 1,
   "shell-version": [ "3.36" ],
   "url": "https://github.com/ItsKerolos/plug"

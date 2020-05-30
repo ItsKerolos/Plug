@@ -2,7 +2,7 @@
 
 const { St, Clutter } = imports.gi;
 
-const Base = imports.ui.panelMenu.Button;
+const PanelMenuButton = imports.ui.panelMenu.Button;
 
 // now we can this the GNOME way
 // by extending PanelMenu.Button registering a custom class
@@ -13,38 +13,49 @@ const Base = imports.ui.panelMenu.Button;
 // but way easier to read and maintain and
 // only uses acutal real EcmaScript
 
-// eslint-disable-next-line no-unused-vars, no-var
+/**
+* @param { { label: string, icon: string } } param0
+*/
 export const Button = ({ label, icon }) =>
 {
-  const stButton = new Base();
+  // I have no idea what this (0.0) value is for
+  // but GNOME will crash and burn without it, so.....
+  const button = new PanelMenuButton(0.0);
 
-  const stBox = new St.BoxLayout();
+  button.add_child(Title({ label, icon }));
+
+  return button;
+};
+
+/**
+* @param { { label: string, icon: string } } param0
+*/
+export const Title = ({ label, icon }) =>
+{
+  const box = new St.BoxLayout();
 
   if (icon)
   {
-    const stIcon =  new St.Icon({
+    const _icon =  new St.Icon({
       // gicon: new Gio.ThemedIcon({ name: 'system-search-symbolic' }),
       // icon_name: 'system-search-symbolic',
-
       icon_name: icon,
       style_class: 'system-status-icon'
     });
 
-    stBox.add(stIcon);
+    box.add(_icon);
   }
 
   if (label)
   {
-    const stLabel = new St.Label({
+    const _label = new St.Label({
       text: label,
       y_expand: true,
       y_align: Clutter.ActorAlign.CENTER
     });
 
-    stBox.add(stLabel);
+    box.add(_label);
   }
 
-  stButton.add_child(stBox);
-
-  return stButton;
+  return box;
 };

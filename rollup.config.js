@@ -2,7 +2,7 @@ import babel from 'rollup-plugin-babel';
 
 export default {
   treeshake: false,
-  input: 'src/extension.js',
+  input: 'src/index.js',
   output: {
     file: 'build/extension.js',
     format: 'cjs',

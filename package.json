@@ -1,8 +1,7 @@
 {
   "name": "plug",
-  "version": "0.1.0",
-  "description": "TBD",
-  "main": "index.js",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "link_gnome": "ln -s $(pwd)/build ~/.local/share/gnome-shell/extensions/plug@ker0olos",
     "unlink_gnome": "rm ~/.local/share/gnome-shell/extensions/plug@ker0olos",
