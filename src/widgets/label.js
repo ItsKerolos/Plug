@@ -48,8 +48,6 @@ export const Label = ({ label, icon, style_class, contain }) =>
   
     return item;
   }
-  else
-  {
-    return box;
-  }
+  
+  return box;
 };
