@@ -3,6 +3,8 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
+import { readDir, spawnPlugin } from './utilities.js';
+
 import { Button } from './widgets/button.js';
 
 // import { Label } from './widgets/label.js';
@@ -57,52 +59,6 @@ function init()
   directory = Gio.File.new_for_path(directoryPath);
 }
 
-/** need a directory using GJS needlessly complicated api
-* @param { string } dir
-* @param { () => void } callback
-*/
-function readDir(dir, callback)
-{
-  const enumerator = dir.enumerate_children(Gio.FILE_ATTRIBUTE_STANDARD_NAME, Gio.FileQueryInfoFlags.NONE, null);
-  
-  let fileInfo = enumerator.next_file(null);
-
-  while (fileInfo)
-  {
-    const file = enumerator.get_child(fileInfo);
-
-    callback(file);
-
-    fileInfo = enumerator.next_file(null);
-  }
-}
-
-/** replace invalid or missing properties from config
-* to make sure GNOME does not catch fire
-* @param { Config } config
-*/
-function valid_config(config)
-{
-  // default is none (won't be updated)
-  if (typeof config.interval !== 'number')
-    config.interval = -1;
-
-  // if interval is higher than -1 but lower than 1000ms
-  // then force it to be 1000ms
-  if (config.interval > -1 && config.interval < 1000)
-    config.interval = 1000;
-  
-  // default position is right
-  if (config.position !== 'left' && config.position !== 'center' && config.position !== 'right')
-    config.position = 'right';
-
-  // default and minimal priority is 0
-  if (typeof config.priority !== 'number' || config.priority <= -1)
-    config.priority = 0;
-  
-  return config;
-}
-
 /** this function could be called after your extension is installed, enabled
 * or when you log in or when the screen is unlocked
 */
@@ -127,6 +83,9 @@ function enable()
     // if the file is not a directory then ignore it
     if (!GLib.file_test(path, GLib.FileTest.IS_DIR))
       return;
+
+    // REMOVE
+    log('plug: loaded: ' + path.split('/').pop());
 
     enable_plugin(path);
     load_plugin(path);
@@ -212,6 +171,32 @@ function monitor_plugin_callback(file)
 
   unload_plugin(path);
   load_plugin(path);
+}
+
+/** replace invalid or missing properties from config
+* to make sure GNOME does not catch fire
+* @param { Config } config
+*/
+function valid_config(config)
+{
+  // default is none (won't be updated)
+  if (typeof config.interval !== 'number')
+    config.interval = -1;
+
+  // if interval is higher than -1 but lower than 1000ms
+  // then force it to be 1000ms
+  if (config.interval > -1 && config.interval < 1000)
+    config.interval = 1000;
+  
+  // default position is right
+  if (config.position !== 'left' && config.position !== 'center' && config.position !== 'right')
+    config.position = 'right';
+
+  // default and minimal priority is 0
+  if (typeof config.priority !== 'number' || config.priority <= -1)
+    config.priority = 0;
+  
+  return config;
 }
 
 /** monitor the plugin directory for changes
@@ -309,10 +294,39 @@ function load_plugin(path)
   // validate the config object
   plugins[path].config = valid_config(config);
 
-  // TODO load plugin's button
+  // create an absolute path for the main file
+  const mainPath = [ path, config.main ].join('/');
+
+  const mainFile = Gio.File.new_for_path(mainPath);
+  
+  // main file doesn't exists or misconfigured
+  if (!mainFile.query_exists(null))
+    return;
+  
   // spawn the main file using the config.execute and config.main
 
-  const button = plugins[path].button = Button({ label: config.name });
+  // TODO precess spawns should be force killed after a certain amount of time if
+  // they don't callback
+  // intervals timeouts should run only when the process callback is received
+
+  const pid = spawnPlugin(config.execute, mainPath, (output) =>
+  {
+    log('plug: ' + id + ' output: ' + output);
+  });
+
+  // the process failed to spawn
+  if (pid <= -1)
+  {
+    log('plug: ' + id + ' failed to spawn.');
+
+    return;
+  }
+  else
+  {
+    log('plug: ' + id + ' spawn process ' + pid);
+  }
+
+  // const button = plugins[path].button = Button({ label: config.name });
 
   // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
 
@@ -333,18 +347,21 @@ function load_plugin(path)
   // }));
 
   // add the button to the top panel
-  main.panel.addToStatusArea(id, button, config.priority, config.position);
+  // main.panel.addToStatusArea(id, button, config.priority, config.position);
 
   // run the plugin on a update interval if its config specify it
   if (config.interval > -1)
   {
-    plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
-    {
-      // reload plugin
+    // plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
+    // {
+    //   // reload plugin
 
-      unload_plugin(path);
-      load_plugin(path);
-    });
+    // // REMOVE
+    //   log('plug: updated: ' + id);
+
+    //   unload_plugin(path);
+    //   load_plugin(path);
+    // });
   }
 }
 
