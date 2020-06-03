@@ -3,15 +3,15 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-// import { Button } from './widgets/button.js';
-// import { Toggle } from './widgets/toggle.js';
-
-// import { Separator } from './widgets/separator.js';
+import { Button } from './widgets/button.js';
 
 // import { Label } from './widgets/label.js';
-// import { Dropdown } from './widgets/dropdown.js';
-// import { Slider } from './widgets/slider.js';
 // import { Image } from './widgets/image.js';
+// import { Separator } from './widgets/separator.js';
+
+// import { Toggle } from './widgets/toggle.js';
+// import { Slider } from './widgets/slider.js';
+// import { Dropdown } from './widgets/dropdown.js';
 
 const { GLib, Gio } = imports.gi;
 const { main } = imports.ui;
@@ -31,7 +31,7 @@ let directory_monitor_id;
 *  monitor: any,
 *  monitorId: any,
 *  monitorDelay: any,
-*  button: any
+*  button: Button
 }> }
 */
 let plugins;
@@ -41,7 +41,7 @@ let plugins;
 * @property { string } name
 * @property { string } execute
 * @property { string } main
-* @property { number } refresh
+* @property { number } interval
 * @property { 'left' | 'center' | 'right' } position
 * @property { number } priority
 */
@@ -74,6 +74,27 @@ function readDir(dir, callback)
 
     fileInfo = enumerator.next_file(null);
   }
+}
+
+/** replace invalid or missing properties from config
+* to make sure GNOME does not catch fire
+* @param { Config } config
+*/
+function valid_config(config)
+{
+  // default and minimal interval is 1000ms
+  if (typeof config.interval !== 'number' || config.interval < 1000)
+    config.interval = 1000;
+  
+  // default position is right
+  if (config.position !== 'left' && config.position !== 'center' && config.position !== 'right')
+    config.position = 'right';
+
+  // default and minimal priority is 0
+  if (typeof config.priority !== 'number' || config.priority <= -1)
+    config.priority = 0;
+  
+  return config;
 }
 
 /** this function could be called after your extension is installed, enabled
@@ -241,30 +262,59 @@ function disable_plugin(path)
 */
 function load_plugin(path)
 {
-  // const configPath = [ path, 'config.json' ].join('/');
+  const id = path.split('/').pop();
 
-  // const [ success, data ] = GLib.file_get_contents(filePath);
+  const configPath = [ path, 'config.json' ].join('/');
 
-  // // file couldn't be read
-  // if (!success)
-  //   return;
+  const configFile = Gio.File.new_for_path(configPath);
 
-  // // start monitoring the plugin ug directory for changes
-  // // allows plug to load and unload plugins in runtime
-  // // instead of requiring an extension reload or a GNOME Shell reload
+  // file doesn't exists
+  // using just file_get_contents throws an error
+  if (!configFile.query_exists(null))
+    return;
 
-  // /** convert data to string then to an object
-  // * @type { Config }
-  // */
-  // const config = JSON.parse(ByteArray.toString(data));
+  const [ success, data ] = GLib.file_get_contents(configPath);
 
-  // plugins[dirPath].config = config;
+  // file couldn't be read
+  if (!success)
+    return;
 
-  // // TODO load plugin's button
+  /** convert data to string then to an object
+  * @type { Config }
+  */
+  let config;
+
+  // try to avoid throwing any errors if something
+  // goes wrong with the config file data
+  try
+  {
+    config = ByteArray.toString(data);
+    config = JSON.parse(config);
+  }
+  catch
+  {
+    config = null;
+  }
+
+  // required properties are required, and required is !important
+  if (!config || !config.main || !config.execute)
+    return;
+
+  // validate the config object
+  plugins[path].config = valid_config(config);
+
+  // TODO load plugin's button
+  // spawn the main file using the config.execute and config.main
+
+  // TODO handle the reloading intervals
+  // and stopping them
+
+  const button = plugins[path].button = Button({ label: config.name });
+
+  // add the button to the top panel
+  main.panel.addToStatusArea(id, button, config.priority, config.position);
 
   // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
-
-  // main.panel.addToStatusArea('Plug Debug Button', indicator, 2, 'left');
 
   // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
   // indicator.menu.addMenuItem(Separator());
@@ -297,6 +347,11 @@ function unload_plugin(path)
 
     plugin.monitorDelay = null;
   }
+
+  // destroy the widget
+  plugin.button?.destroy();
+
+  plugin.config = plugin.button = null;
 }
 
 /** this function could be called after your extension is uninstalled, disabled

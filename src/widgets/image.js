@@ -24,9 +24,7 @@ export const Image = ({ url, mode, width, height, contain }) =>
 
   if (url.startsWith('https://') || url.startsWith('http://'))
   {
-    let id = url.split('/');
-
-    id = id[id.length - 1];
+    const id = url.split('/').pop();
 
     // /home/[user]/.cache/[id] (probably)
     const path = [ GLib.get_home_dir(), '.cache', id ].join('/');
