@@ -28,14 +28,22 @@ export const Image = ({ url, mode, width, height, contain }) =>
 
     id = id[id.length - 1];
 
-    const path = GLib.build_filenamev([ GLib.get_home_dir(), '.cache', id ]);
+    // /home/[user]/.cache/[id] (probably)
+    const path = [ GLib.get_home_dir(), '.cache', id ].join('/');
 
     const file = Gio.File.new_for_path(path);
 
     // if the url does not exist
     // then download it using curl
     if (!file.query_exists(null))
+    {
+      // P.S. I could not find a way to preform a curl call using GJS/GLib
+      // if there is one, please open a PR or an issue
       GLib.spawn_sync(null,  [ 'curl', '-o', path, url ], null, GLib.SpawnFlags.SEARCH_PATH, null);
+    }
+
+    // switch the url with the file path
+    // and render it
 
     is_file = true;
 

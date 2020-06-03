@@ -1,6 +1,9 @@
 Performance Issues and Bugs:
+  ☐ test enabling and disabling the extension on a real working plugin
+    and look for any errors that might occur
 
 Features:
   ☐ markup labels
+  ☐ enable using the image widget with labels & sliders
 
 Documentation:
