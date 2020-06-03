@@ -21,7 +21,7 @@ const ByteArray = imports.byteArray;
 
 let directory;
 let directory_monitor;
-let directory_monitor_delay;
+let directory_monitor_timeout;
 
 let directory_monitor_id;
 
@@ -30,7 +30,8 @@ let directory_monitor_id;
 *  config: Config,
 *  monitor: any,
 *  monitorId: any,
-*  monitorDelay: any,
+*  monitorTimeout: any,
+*  intervalTimeout: any,
 *  button: Button
 }> }
 */
@@ -82,8 +83,13 @@ function readDir(dir, callback)
 */
 function valid_config(config)
 {
-  // default and minimal interval is 1000ms
-  if (typeof config.interval !== 'number' || config.interval < 1000)
+  // default is none (won't be updated)
+  if (typeof config.interval !== 'number')
+    config.interval = -1;
+
+  // if interval is higher than -1 but lower than 1000ms
+  // then force it to be 1000ms
+  if (config.interval > -1 && config.interval < 1000)
     config.interval = 1000;
   
   // default position is right
@@ -137,8 +143,8 @@ function enable()
     // if no callback is currently scheduled
     // then schedule it after 100ms
     // prevents GNOME from calling the callback 20 times in a single millisecond
-    if (!directory_monitor_delay)
-      directory_monitor_delay = Mainloop.timeout_add(100, () => monitor_root_callback(file, otherFile));
+    if (!directory_monitor_timeout)
+      directory_monitor_timeout = Mainloop.timeout_add(100, () => monitor_root_callback(file, otherFile));
   });
 }
 
@@ -149,8 +155,8 @@ function monitor_root_callback(file, otherFile)
 
   const exists = file.query_exists(null);
   
-  // remove delay indicator
-  directory_monitor_delay = null;
+  // remove the timeout indicator
+  directory_monitor_timeout = null;
 
   // directory deleted or moved
   if (!exists)
@@ -199,8 +205,8 @@ function monitor_plugin_callback(file)
 {
   const path = file.get_parent().get_path();
 
-  // remove delay indicator
-  plugins[path].monitorDelay = null;
+  // remove the timeout indicator
+  plugins[path].monitorTimeout = null;
 
   // reload plugin
 
@@ -226,8 +232,8 @@ function enable_plugin(path)
     // if no callback is currently scheduled
     // then schedule it after 100ms
     // prevents GNOME from calling the callback 20 times in a single millisecond
-    if (!plugins[path].monitorDelay)
-      plugins[path].monitorDelay = Mainloop.timeout_add(100, () => monitor_plugin_callback(file));
+    if (!plugins[path].monitorTimeout)
+      plugins[path].monitorTimeout = Mainloop.timeout_add(100, () => monitor_plugin_callback(file));
   });
 
   plugins[path] = {
@@ -245,9 +251,9 @@ function disable_plugin(path)
 
   // stop monitoring the plugin directory
 
-  // no need to stop the monitor delay here
+  // no need to stop the monitor timeout here
   // all disabled plugins are also unloaded first
-  // and unload_plugins stops the delay
+  // and unload_plugins stops the timeout
 
   plugin.monitor.disconnect(plugin.monitorId);
   plugin.monitor.cancel();
@@ -306,13 +312,7 @@ function load_plugin(path)
   // TODO load plugin's button
   // spawn the main file using the config.execute and config.main
 
-  // TODO handle the reloading intervals
-  // and stopping them
-
   const button = plugins[path].button = Button({ label: config.name });
-
-  // add the button to the top panel
-  main.panel.addToStatusArea(id, button, config.priority, config.position);
 
   // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
 
@@ -331,21 +331,44 @@ function load_plugin(path)
   //   // url: '/home/ker0olos/Pictures/gnome-shell-screenshot-3NA8H0.png',
   //   url: 'https://i.scdn.co/image/ab67616d00001e029a69d046c6872ba4eb9ce82c'
   // }));
+
+  // add the button to the top panel
+  main.panel.addToStatusArea(id, button, config.priority, config.position);
+
+  // run the plugin on a update interval if its config specify it
+  if (config.interval > -1)
+  {
+    plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
+    {
+      // reload plugin
+
+      unload_plugin(path);
+      load_plugin(path);
+    });
+  }
 }
 
 /** unload the plugin config and destroys its button
-* @aram { string } path
+* @param { string } path
 */
 function unload_plugin(path)
 {
   const plugin = plugins[path];
 
   // if a monitor call is awaiting then cancel it
-  if (plugin.monitorDelay)
+  if (plugin.monitorTimeout)
   {
-    Mainloop.source_remove(plugin.monitorDelay);
+    Mainloop.source_remove(plugin.monitorTimeout);
 
-    plugin.monitorDelay = null;
+    plugin.monitorTimeout = null;
+  }
+
+  // stop the reload interval if its running
+  if (plugin.intervalTimeout)
+  {
+    Mainloop.source_remove(plugin.intervalTimeout);
+
+    plugin.intervalTimeout = null;
   }
 
   // destroy the widget
@@ -364,11 +387,11 @@ function disable()
   // stop monitoring the root directory
 
   // if a monitor call is awaiting then cancel it
-  if (directory_monitor_delay)
+  if (directory_monitor_timeout)
   {
-    Mainloop.source_remove(directory_monitor_delay);
+    Mainloop.source_remove(directory_monitor_timeout);
 
-    directory_monitor_delay = null;
+    directory_monitor_timeout = null;
   }
 
   directory_monitor.disconnect(directory_monitor_id);
