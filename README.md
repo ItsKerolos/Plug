@@ -19,8 +19,33 @@ TODO
 
 ### Installation
 
-TODO
+Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).
 
-### Documentation
+Here's how to install it manually:
+
+```
+git clone https://github.com/ItsKerolos/plug
+```
+```
+cd plug
+```
+```
+npm install && npm run build && npm run link_gnome
+```
+
+After that just reload the shell and make sure Plug is enabled in the Extensions app.
+
+### Installing Plugins
+
+Plug automatically loads new plugins, don't reload the shell or do anything else.
+
+```
+cd ~/.config/plug
+```
+```
+git clone https://github.com/[user]/[plug-plugin]
+```
+
+### Creating Plugins
 
 TODO
