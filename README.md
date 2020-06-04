@@ -10,7 +10,7 @@ But... a while ago I found an extension that was called [Argos](https://github.c
 
 Not wanting to give up on my dreams of a more personalized GNOME setup, I decided to go through hell.
 
-On paper Plug is Argos/BitBar... except not really, this will not be backward compatible with neither of them, it will support less technical features like eval, but allows more UI widgets like sliders and toggles.
+On paper Plug is like Argos... except not really, this will never be backward compatible with it.
 
 ### Examples
 

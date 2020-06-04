@@ -56,6 +56,11 @@ export function spawnPlugin(execute, mainPath, callback)
   }
 }
 
+export function killProcess(pid)
+{
+  GLib.spawn_sync(null,  [ 'kill', pid.toString() ], null, GLib.SpawnFlags.SEARCH_PATH, null);
+}
+
 /** spawns a new process and awaits it death
 * after the process is buried it emits the callback with the process' standard output
 * origin: https://github.com/p-e-w/argos/blob/fcb475140bd9d0b4b95279ce56c4c28f36fb29d6/argos%40pew.worldwidemann.com/utilities.js#L247

@@ -3,7 +3,7 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, spawnPlugin } from './utilities.js';
+import { readDir, spawnPlugin, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
@@ -33,6 +33,8 @@ let directory_monitor_id;
 *  monitor: any,
 *  monitorId: any,
 *  monitorTimeout: any,
+*  processTimeout: any,
+*  processId: any,
 *  intervalTimeout: any,
 *  button: Button
 }> }
@@ -41,6 +43,7 @@ let plugins;
 
 /**
 * @typedef { Object } Config
+* @property { boolean } killed
 * @property { string } name
 * @property { string } execute
 * @property { string } main
@@ -83,9 +86,6 @@ function enable()
     // if the file is not a directory then ignore it
     if (!GLib.file_test(path, GLib.FileTest.IS_DIR))
       return;
-
-    // REMOVE
-    log('plug: loaded: ' + path.split('/').pop());
 
     enable_plugin(path);
     load_plugin(path);
@@ -243,6 +243,18 @@ function disable_plugin(path)
   plugin.monitor.disconnect(plugin.monitorId);
   plugin.monitor.cancel();
 
+  // if any process is running then kill it
+  if (plugin.processId)
+    killProcess(plugin.processId);
+
+  // stop the process timeout
+  if (plugin.processTimeout)
+  {
+    Mainloop.source_remove(plugin.processTimeout);
+
+    plugin.processTimeout = null;
+  }
+
   plugin.monitor = plugin.monitorId = null;
 
   plugins[path] = null;
@@ -291,6 +303,10 @@ function load_plugin(path)
   if (!config || !config.main || !config.execute)
     return;
 
+  // if plugin is killed then ignore loading it
+  if (config.killed)
+    return;
+
   // validate the config object
   plugins[path].config = valid_config(config);
 
@@ -302,67 +318,87 @@ function load_plugin(path)
   // main file doesn't exists or misconfigured
   if (!mainFile.query_exists(null))
     return;
-  
+
   // spawn the main file using the config.execute and config.main
-
-  // TODO precess spawns should be force killed after a certain amount of time if
-  // they don't callback
-  // intervals timeouts should run only when the process callback is received
-
-  const pid = spawnPlugin(config.execute, mainPath, (output) =>
+  const pid = plugins[path].processId = spawnPlugin(config.execute, mainPath, (output) =>
   {
+    // to make sure nothing weird happened and
+    // this function got called anyway
+    if (
+      !plugins[path].processTimeout ||
+      !plugins[path] ||
+      !plugins[path].config ||
+      plugins[path].config.killed
+    )
+      return;
+    
+    // stop the process timeout
+
+    Mainloop.source_remove(plugins[path].processTimeout);
+
+    plugins[path].processTimeout = null;
+
+    // REMOVE
     log('plug: ' + id + ' output: ' + output);
+
+    // const button = plugins[path].button = Button({ label: config.name });
+
+    // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
+
+    // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
+    // indicator.menu.addMenuItem(Separator());
+    // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
+    // indicator.menu.addMenuItem(Separator());
+    // indicator.menu.addMenuItem(Toggle({ label: 'AAA', state: true }));
+  
+    // indicator.menu.addMenuItem(Image({
+    //   // mode: 'icon',
+    //   mode: 'image',
+    //   width: 100,
+    //   height: 100,
+    //   // url: 'system-search-symbolic'
+    //   // url: '/home/ker0olos/Pictures/gnome-shell-screenshot-3NA8H0.png',
+    //   url: 'https://i.scdn.co/image/ab67616d00001e029a69d046c6872ba4eb9ce82c'
+    // }));
+
+    // add the button to the top panel
+    // main.panel.addToStatusArea(id, button, config.priority, config.position);
+
+    // run the plugin on a update interval if its config specify it
+    if (config.interval > -1)
+    {
+      plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
+      {
+        // remove the timeout indicator
+        plugins[path].intervalTimeout = null;
+
+        // reload plugin
+
+        unload_plugin(path);
+        load_plugin(path);
+      });
+    }
   });
 
   // the process failed to spawn
   if (pid <= -1)
-  {
-    log('plug: ' + id + ' failed to spawn.');
-
     return;
-  }
-  else
-  {
-    log('plug: ' + id + ' spawn process ' + pid);
-  }
-
-  // const button = plugins[path].button = Button({ label: config.name });
-
-  // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
-
-  // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
-  // indicator.menu.addMenuItem(Separator());
-  // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
-  // indicator.menu.addMenuItem(Separator());
-  // indicator.menu.addMenuItem(Toggle({ label: 'AAA', state: true }));
   
-  // indicator.menu.addMenuItem(Image({
-  //   // mode: 'icon',
-  //   mode: 'image',
-  //   width: 100,
-  //   height: 100,
-  //   // url: 'system-search-symbolic'
-  //   // url: '/home/ker0olos/Pictures/gnome-shell-screenshot-3NA8H0.png',
-  //   url: 'https://i.scdn.co/image/ab67616d00001e029a69d046c6872ba4eb9ce82c'
-  // }));
-
-  // add the button to the top panel
-  // main.panel.addToStatusArea(id, button, config.priority, config.position);
-
-  // run the plugin on a update interval if its config specify it
-  if (config.interval > -1)
+  // any process that takes longer than 5s to complete is killed
+  // intervals timeouts should run when the process callback is received
+  plugins[path].processTimeout = Mainloop.timeout_add(5000, () =>
   {
-    // plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
-    // {
-    //   // reload plugin
+    // killed plugins are disabled permanently until user manually enables them again
 
-    // // REMOVE
-    //   log('plug: updated: ' + id);
+    // remove the timeout indicators
+    plugins[path].processId = plugins[path].processTimeout = null;
 
-    //   unload_plugin(path);
-    //   load_plugin(path);
-    // });
-  }
+    // kill the process
+    killProcess(pid);
+    
+    // kill the plugin
+    kill_plugin(path, configPath, config);
+  });
 }
 
 /** unload the plugin config and destroys its button
@@ -392,6 +428,29 @@ function unload_plugin(path)
   plugin.button?.destroy();
 
   plugin.config = plugin.button = null;
+}
+
+/** disables a plugin permanently or until the user manually enables it again
+* @param { string } path
+* @param { string } configPath
+* @param { Config } config
+*/
+function kill_plugin(path, configPath, config)
+{
+  // unload plugin
+  // (this might cause unknown issues
+  // if it was triggered during a weird time
+  // but for now we'll leave it here)
+  unload_plugin(path);
+  
+  // we won't disable the plugin because the user might want to enable it
+  // and disabling it will stop monitoring its directory
+
+  // this property causes the load_plugin function to ignore the plugin
+  config.killed = true;
+
+  // write the new config disk
+  GLib.file_set_contents(configPath, JSON.stringify(config, null, 2));
 }
 
 /** this function could be called after your extension is uninstalled, disabled
