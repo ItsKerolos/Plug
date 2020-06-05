@@ -35,8 +35,6 @@ export const Image = ({ url, mode, width, height, contain }) =>
     // then download it using curl
     if (!file.query_exists(null))
     {
-      // P.S. I could not find a way to preform a curl call using GJS/GLib
-      // if there is one, please open a PR or an issue
       GLib.spawn_sync(null,  [ 'curl', '-o', path, url ], null, GLib.SpawnFlags.SEARCH_PATH, null);
     }
 
@@ -56,7 +54,7 @@ export const Image = ({ url, mode, width, height, contain }) =>
     
     const size = Math.max(width || icon_format.width, height || icon_format.height);
 
-    // using the Pixbuf here instead of the FileIcon returned by icon_new_for_string
+    // using the Pixbuf here instead of the Gio.icon_new_for_string()
     // cause a wired issue with set_size
     // we have to settle for loading the same file twice
     icon = St.TextureCache.get_default().load_gicon(null, Gio.icon_new_for_string(url), size, 1, 1);

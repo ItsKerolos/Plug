@@ -45,58 +45,58 @@ export const Button = (id, priority, alignment) =>
     y_align: Clutter.ActorAlign.CENTER
   });
 
+  // icon and label are hidden by default
+
   _icon.visible = false;
   _label.visible = false;
+
+  // append the button widget to the panel
+
+  let _priority = priority, _alignment = alignment;
+
+  main.panel.addToStatusArea(id, button, priority, alignment);
+
+  //
 
   box.add_child(_icon);
   box.add_child(_label);
 
   button.add_child(box);
 
-  // append the button widget to the panel
-
-  let _priority = priority;
-  let _alignment = alignment;
-
-  main.panel.addToStatusArea(id, button, priority, alignment);
-
-  const setIcon = (icon) =>
-  {
-    _icon.visible = (icon) ? true : false;
-    _icon.icon_name = icon;
-  };
-
-  const setText = (text) =>
-  {
-    _label.visible = (text) ? true : false;
-    _label.text = text;
-  };
-
-  const align = (priority, alignment) =>
-  {
-    // only cause a change if the button position changes
-    if (alignment !== _alignment || priority !== _priority)
-    {
-      // the fact that we can do this
-      // is probably an issue in GNOME
-      // since normally addToStatusArea() refuses to override an id
-      // but (statusArea[id] = null) makes GNOME forget the item ever existed
-      // I'm going to use this while it works anyway
-      // since I don't what to implement this with 200 lines instead
-
-      // eslint-disable-next-line security/detect-object-injection
-      main.panel.statusArea[id] = null;
-      main.panel.addToStatusArea(id, button, priority, alignment);
-
-      _alignment = alignment;
-      _priority = priority;
-    }
-  };
-
   return {
-    align,
+    align: (priority, alignment) =>
+    {
+      // only cause a change if the button position changes
+      if (alignment !== _alignment || priority !== _priority)
+      {
+        // the fact that we can do this
+        // is probably an issue in GNOME
+        // since normally addToStatusArea() refuses to override an id
+        // but (statusArea[id] = null) makes GNOME forget the item ever existed
+        // I'm going to use this while it works anyway
+        // since I don't what to implement this with 200 lines instead
+  
+        // eslint-disable-next-line security/detect-object-injection
+        main.panel.statusArea[id] = null;
+        main.panel.addToStatusArea(id, button, priority, alignment);
+  
+        _alignment = alignment;
+        _priority = priority;
+      }
+    },
+
     destroy: () => button.destroy(),
-    setIcon: (icon) => setIcon(icon),
-    setLabel: (text) => setText(text)
+
+    setIcon: (icon) =>
+    {
+      _icon.visible = (icon) ? true : false;
+      _icon.icon_name = icon;
+    },
+
+    setLabel: (text) =>
+    {
+      _label.visible = (text) ? true : false;
+      _label.text = text;
+    }
   };
 };

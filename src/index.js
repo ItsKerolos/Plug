@@ -11,9 +11,9 @@ import { Label } from './widgets/label.js';
 import { Image } from './widgets/image.js';
 import { Separator } from './widgets/separator.js';
 
+import { Dropdown } from './widgets/dropdown.js';
 import { Toggle } from './widgets/toggle.js';
 import { Slider } from './widgets/slider.js';
-import { Dropdown } from './widgets/dropdown.js';
 
 const { GLib, Gio } = imports.gi;
 
@@ -257,7 +257,9 @@ function disable_plugin(path)
   // destroy the plugin's button widget
   plugin.button?.destroy();
 
-  plugin.button = plugin.monitor = plugin.monitorId = null;
+  plugin.button =
+  plugin.monitor =
+  plugin.monitorId = null;
 
   plugins[path] = null;
 }
@@ -402,9 +404,8 @@ function unload_plugin(path)
   }
 
   // configs can change anytime through any plugin's lifetime
-  // configs have properties tat affect rendering and functionality
-  // of the plugin
-  // meaning that they should be reloaded every circle.
+  // configs have properties that affect the rendering and functionality
+  // of the plugin, meaning that they should be reloaded every circle
 
   plugin.config = null;
 }
@@ -416,21 +417,19 @@ function unload_plugin(path)
 */
 function render_plugin(path, config, output)
 {
-  if (!output || !output.length)
-    return null;
+  if (!Array.isArray(output))
+    output = [];
+
+  let button = plugins[path].button;
 
   // create the plugin's button if it does not exists yet
-  if (!plugins[path].button)
+  if (!button)
   {
     const id = `plug-in-${path.split('/').pop()}`;
 
-    const button = Button(id, config.priority, config.alignment);
-    
-    plugins[path].button = button;
+    button = plugins[path].button = Button(id, config.priority, config.alignment);
   }
   
-  const button = plugins[path].button;
-
   // algin the button following the config specifications
   button.align(config.priority, config.alignment);
 

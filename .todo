@@ -4,9 +4,10 @@ Performance Issues and Bugs:
 
 Testing:
   ☐ setup a Jest environment for unit testing
-    - we need to test enable & disable & load & unload
-      those thing can break the shell if an issue occurs,
-      it will not be hard to mockup GJS functions.
+    - we need to test
+      (enable & disable & load & unload & killing)
+      those things can break the shell if an issue during them,
+      (it won't be that hard to mock the GJS functions).
 
 Features:
   ☐ enable using image files with button
