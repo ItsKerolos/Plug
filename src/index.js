@@ -36,6 +36,7 @@ let directory_monitor_id;
 *  processId: any,
 *  intervalTimeout: any,
 *  button: import('./widgets/button').Button
+*  lastOutput: string
 }> }
 */
 let plugins;
@@ -405,7 +406,7 @@ function unload_plugin(path)
 
   // configs can change anytime through any plugin's lifetime
   // configs have properties that affect the rendering and functionality
-  // of the plugin, meaning that they should be reloaded every circle
+  // of the plugin, meaning that they should be reloaded every cycle
 
   plugin.config = null;
 }
@@ -420,27 +421,59 @@ function render_plugin(path, config, output)
   if (!Array.isArray(output))
     output = [];
 
-  let button = plugins[path].button;
+  const plugin = plugins[path];
+
+  const id = path.split('/').pop();
+
+  const currentOutput = output.join('');
 
   // create the plugin's button if it does not exists yet
-  if (!button)
+  if (!plugin.button)
   {
-    const id = `plug-in-${path.split('/').pop()}`;
-
-    button = plugins[path].button = Button(id, config.priority, config.alignment);
+    plugin.button = Button(`plug-in-${id}`, config.priority, config.alignment);
   }
+
+  const button = plugin.button;
   
   // algin the button following the config specifications
   button.align(config.priority, config.alignment);
 
-  // TODO handle both text and icon being empty
+  // no changes occurred since last cycle
+  // ignore re-render
+  if (plugin.lastOutput && plugin.lastOutput === currentOutput)
+    return;
+
+  // update last output
+  plugin.lastOutput = currentOutput;
+
+  // handles no-output processes
+  if (output.length <= 0)
+  {
+    button.setLabel(config.name || id);
+
+    return;
+  }
   
+  // TODO design the output language and how to parse it
+
+  // render the panel label & icon
+
   button.setLabel(output[0]);
   // button.setIcon('system-search-symbolic');
+  // button.setCallback(() => imports.ui.main.notify(config.name, output[1]));
 
-  button.setCallback(() => imports.ui.main.notify(config.name, output[1]));
+  // const clipboard = imports.gi.St.Clipboard.get_default();
+  // button.setCallback(() => clipboard.set_text(1, 'this is a test to clipboard'));
 
-  // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
+  // render the panel menu
+
+  // destroying the old menu
+  plugin.button.clearMenu();
+  
+  const testLabel = Label({ label: output[1] });
+    
+  plugin.button.addMenuItem(testLabel);
+
   // indicator.menu.addMenuItem(Separator());
   // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
   // indicator.menu.addMenuItem(Separator());

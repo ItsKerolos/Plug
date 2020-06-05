@@ -18,6 +18,8 @@ const PanelMenuButton = imports.ui.panelMenu.Button;
 * @typedef { Object } Button
 * @property { (priority: number, alignment: string) => void } align
 * @property { () => void } destroy
+* @property { () => void } clearMenu
+* @property { (item) => void } addMenuItem
 * @property { (callback: Function) => void } setCallback
 * @property { (icon: string) => void } setIcon
 * @property { (text: string) => void } setLabel
@@ -49,6 +51,9 @@ export const Button = (id, priority, alignment) =>
   // button press callback signal id
   let pressSignalId;
 
+  // keeping track of button menu items
+  let items = [];
+
   // icon and label are hidden by default
 
   _icon.visible = false;
@@ -60,7 +65,7 @@ export const Button = (id, priority, alignment) =>
 
   main.panel.addToStatusArea(id, button, priority, alignment);
 
-  //
+  // this is called parenting
 
   box.add_child(_icon);
   box.add_child(_label);
@@ -90,6 +95,27 @@ export const Button = (id, priority, alignment) =>
     },
 
     destroy: () => button.destroy(),
+
+    clearMenu: () =>
+    {
+      // does the BoxLayout have a array that has those items already
+      // because this is very ugly and annoying me
+      items.forEach((item) =>
+      {
+        button.menu.box.remove_child(item);
+
+        item.destroy();
+      });
+
+      items = [];
+    },
+
+    addMenuItem: (item) =>
+    {
+      items.push(item);
+
+      button.menu.addMenuItem(item);
+    },
 
     setCallback: (callback) =>
     {
