@@ -7,16 +7,15 @@ import { readDir, spawnPlugin, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
-// import { Label } from './widgets/label.js';
-// import { Image } from './widgets/image.js';
-// import { Separator } from './widgets/separator.js';
+import { Label } from './widgets/label.js';
+import { Image } from './widgets/image.js';
+import { Separator } from './widgets/separator.js';
 
-// import { Toggle } from './widgets/toggle.js';
-// import { Slider } from './widgets/slider.js';
-// import { Dropdown } from './widgets/dropdown.js';
+import { Toggle } from './widgets/toggle.js';
+import { Slider } from './widgets/slider.js';
+import { Dropdown } from './widgets/dropdown.js';
 
 const { GLib, Gio } = imports.gi;
-const { main } = imports.ui;
 
 const Mainloop = imports.mainloop;
 const ByteArray = imports.byteArray;
@@ -36,7 +35,7 @@ let directory_monitor_id;
 *  processTimeout: any,
 *  processId: any,
 *  intervalTimeout: any,
-*  button: Button
+*  button: import('./widgets/button').Button
 }> }
 */
 let plugins;
@@ -48,7 +47,7 @@ let plugins;
 * @property { string } execute
 * @property { string } main
 * @property { number } interval
-* @property { 'left' | 'center' | 'right' } position
+* @property { 'left' | 'center' | 'right' } alignment
 * @property { number } priority
 */
 
@@ -188,9 +187,9 @@ function valid_config(config)
   if (config.interval > -1 && config.interval < 1000)
     config.interval = 1000;
   
-  // default position is right
-  if (config.position !== 'left' && config.position !== 'center' && config.position !== 'right')
-    config.position = 'right';
+  // default alignment is right
+  if (config.alignment !== 'left' && config.alignment !== 'center' && config.alignment !== 'right')
+    config.alignment = 'right';
 
   // default and minimal priority is 0
   if (typeof config.priority !== 'number' || config.priority <= -1)
@@ -255,7 +254,10 @@ function disable_plugin(path)
     plugin.processTimeout = null;
   }
 
-  plugin.monitor = plugin.monitorId = null;
+  // destroy the plugin's button widget
+  plugin.button?.destroy();
+
+  plugin.button = plugin.monitor = plugin.monitorId = null;
 
   plugins[path] = null;
 }
@@ -265,8 +267,6 @@ function disable_plugin(path)
 */
 function load_plugin(path)
 {
-  const id = path.split('/').pop();
-
   const configPath = [ path, 'config.json' ].join('/');
 
   const configFile = Gio.File.new_for_path(configPath);
@@ -319,52 +319,29 @@ function load_plugin(path)
   if (!mainFile.query_exists(null))
     return;
 
-  // spawn the main file using the config.execute and config.main
+  // spawn the main file using the config.execute
   const pid = plugins[path].processId = spawnPlugin(config.execute, mainPath, (output) =>
   {
     // to make sure nothing weird happened and
     // this function got called anyway
     if (
-      !plugins[path].processTimeout ||
       !plugins[path] ||
+      !plugins[path].processTimeout ||
       !plugins[path].config ||
       plugins[path].config.killed
     )
       return;
     
-    // stop the process timeout
+    // process is done, stop the process timeout
 
     Mainloop.source_remove(plugins[path].processTimeout);
 
     plugins[path].processTimeout = null;
 
-    // REMOVE
-    log('plug: ' + id + ' output: ' + output);
+    // render the plugin's widgets
+    render_plugin(path, config, output);
 
-    // const button = plugins[path].button = Button({ label: config.name });
-
-    // indicator.menu.addMenuItem(Label({ label: 'Plugin: ' + config.name }));
-
-    // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
-    // indicator.menu.addMenuItem(Separator());
-    // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
-    // indicator.menu.addMenuItem(Separator());
-    // indicator.menu.addMenuItem(Toggle({ label: 'AAA', state: true }));
-  
-    // indicator.menu.addMenuItem(Image({
-    //   // mode: 'icon',
-    //   mode: 'image',
-    //   width: 100,
-    //   height: 100,
-    //   // url: 'system-search-symbolic'
-    //   // url: '/home/ker0olos/Pictures/gnome-shell-screenshot-3NA8H0.png',
-    //   url: 'https://i.scdn.co/image/ab67616d00001e029a69d046c6872ba4eb9ce82c'
-    // }));
-
-    // add the button to the top panel
-    // main.panel.addToStatusArea(id, button, config.priority, config.position);
-
-    // run the plugin on a update interval if its config specify it
+    // run the plugin on a reload interval if its config specify it
     if (config.interval > -1)
     {
       plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
@@ -384,20 +361,15 @@ function load_plugin(path)
   if (pid <= -1)
     return;
   
-  // any process that takes longer than 5s to complete is killed
-  // intervals timeouts should run when the process callback is received
+  // any process that takes longer than 5s to finish is killed
   plugins[path].processTimeout = Mainloop.timeout_add(5000, () =>
   {
-    // killed plugins are disabled permanently until user manually enables them again
-
     // remove the timeout indicators
     plugins[path].processId = plugins[path].processTimeout = null;
 
-    // kill the process
-    killProcess(pid);
-    
     // kill the plugin
-    kill_plugin(path, configPath, config);
+    // killed plugins are disabled permanently until user manually enables them again
+    kill_plugin(path, configPath, pid, config);
   });
 }
 
@@ -408,6 +380,11 @@ function unload_plugin(path)
 {
   const plugin = plugins[path];
 
+  // the following timeout are canceled
+  // because they purpose were to cause a reload
+  // the fact that this function is called means
+  // any current timeouts are unnecessary
+
   // if a monitor call is awaiting then cancel it
   if (plugin.monitorTimeout)
   {
@@ -416,7 +393,7 @@ function unload_plugin(path)
     plugin.monitorTimeout = null;
   }
 
-  // stop the reload interval if its running
+  // stop any running reload intervals
   if (plugin.intervalTimeout)
   {
     Mainloop.source_remove(plugin.intervalTimeout);
@@ -424,32 +401,83 @@ function unload_plugin(path)
     plugin.intervalTimeout = null;
   }
 
-  // destroy the widget
-  plugin.button?.destroy();
+  // configs can change anytime through any plugin's lifetime
+  // configs have properties tat affect rendering and functionality
+  // of the plugin
+  // meaning that they should be reloaded every circle.
 
-  plugin.config = plugin.button = null;
+  plugin.config = null;
+}
+
+/**
+* @param { string } path
+* @param { Config } config
+* @param { string[] } output
+*/
+function render_plugin(path, config, output)
+{
+  if (!output || !output.length)
+    return null;
+
+  // create the plugin's button if it does not exists yet
+  if (!plugins[path].button)
+  {
+    const id = `plug-in-${path.split('/').pop()}`;
+
+    const button = Button(id, config.priority, config.alignment);
+    
+    plugins[path].button = button;
+  }
+  
+  const button = plugins[path].button;
+
+  // algin the button following the config specifications
+  button.align(config.priority, config.alignment);
+
+  // TODO handle both text and icon being empty
+  
+  button.setLabel(output[0]);
+  // button.setIcon('system-search-symbolic');
+
+  // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
+  // indicator.menu.addMenuItem(Separator());
+  // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
+  // indicator.menu.addMenuItem(Separator());
+  // indicator.menu.addMenuItem(Toggle({ label: 'AAA', state: true }));
+
+  // indicator.menu.addMenuItem(Image({
+  //   // mode: 'icon',
+  //   mode: 'image',
+  //   width: 100,
+  //   height: 100,
+  //   // url: 'system-search-symbolic'
+  //   // url: '/home/ker0olos/Pictures/gnome-shell-screenshot-3NA8H0.png',
+  //   url: 'https://i.scdn.co/image/ab67616d00001e029a69d046c6872ba4eb9ce82c'
+  // }));
 }
 
 /** disables a plugin permanently or until the user manually enables it again
 * @param { string } path
+* @param { number } pid
 * @param { string } configPath
 * @param { Config } config
 */
-function kill_plugin(path, configPath, config)
+function kill_plugin(path, configPath, pid, config)
 {
+  // kill the process
+  killProcess(pid);
+
   // unload plugin
-  // (this might cause unknown issues
-  // if it was triggered during a weird time
-  // but for now we'll leave it here)
   unload_plugin(path);
   
   // we won't disable the plugin because the user might want to enable it
-  // and disabling it will stop monitoring its directory
+  // and disabling it here will stop monitoring its directory, therefore
+  // require the user to either reload the extension or the shell
 
   // this property causes the load_plugin function to ignore the plugin
   config.killed = true;
 
-  // write the new config disk
+  // write the changes to disk
   GLib.file_set_contents(configPath, JSON.stringify(config, null, 2));
 }
 
@@ -475,7 +503,7 @@ function disable()
 
   directory_monitor = directory_monitor_id = null;
 
-  // unload plugins
+  // disable plugins
 
   Object.keys(plugins).forEach((path) =>
   {

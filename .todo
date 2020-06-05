@@ -4,9 +4,23 @@ Performance Issues and Bugs:
 
 Testing:
   ☐ setup a Jest environment for unit testing
+    - we need to test enable & disable & load & unload
+      those thing can break the shell if an issue occurs,
+      it will not be hard to mockup GJS functions.
 
 Features:
-  ☐ markup labels
+  ☐ enable using image files with button
   ☐ enable using the image widget with labels & sliders
 
+  ☐ support markup on labels
+
+  ☐ create a debug plugin to help developers create plugins
+    - plug should log all plugin errors to GNOME and the debug plugin
+    should just grep them every second
+
 Documentation:
+  ☐ document the fact about the 5 seconds timeout for plugins
+  ☐ document about reloading
+  ☐ document intervals, positions, priorities
+  ☐ document execute, main
+  ☐ document widgets

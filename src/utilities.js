@@ -56,6 +56,9 @@ export function spawnPlugin(execute, mainPath, callback)
   }
 }
 
+/**
+* @param { number } pid
+*/
 export function killProcess(pid)
 {
   GLib.spawn_sync(null,  [ 'kill', pid.toString() ], null, GLib.SpawnFlags.SEARCH_PATH, null);
