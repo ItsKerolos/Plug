@@ -18,6 +18,7 @@ const PanelMenuButton = imports.ui.panelMenu.Button;
 * @typedef { Object } Button
 * @property { (priority: number, alignment: string) => void } align
 * @property { () => void } destroy
+* @property { (callback: Function) => void } setCallback
 * @property { (icon: string) => void } setIcon
 * @property { (text: string) => void } setLabel
 */
@@ -44,6 +45,9 @@ export const Button = (id, priority, alignment) =>
     y_expand: true,
     y_align: Clutter.ActorAlign.CENTER
   });
+
+  // button press callback signal id
+  let pressSignalId;
 
   // icon and label are hidden by default
 
@@ -86,6 +90,19 @@ export const Button = (id, priority, alignment) =>
     },
 
     destroy: () => button.destroy(),
+
+    setCallback: (callback) =>
+    {
+      if (pressSignalId)
+      {
+        button.disconnect(pressSignalId);
+    
+        pressSignalId = null;
+      }
+    
+      if (callback)
+        pressSignalId = button.connect('button-press-event', callback);
+    },
 
     setIcon: (icon) =>
     {

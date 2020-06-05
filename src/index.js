@@ -438,6 +438,8 @@ function render_plugin(path, config, output)
   button.setLabel(output[0]);
   // button.setIcon('system-search-symbolic');
 
+  button.setCallback(() => imports.ui.main.notify(config.name, output[1]));
+
   // indicator.menu.addMenuItem(Label({ label: 'Beep Beep', icon: 'system-search-symbolic' }));
   // indicator.menu.addMenuItem(Separator());
   // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
