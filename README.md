@@ -48,4 +48,41 @@ git clone https://github.com/[user]/[plug-plugin]
 
 ### Creating Plugins
 
+Install Plug then go to ```~/.config/plug``` and create a directory for your plugin.
+
+Inside the directory create a file called ```config.json``` (required).
+
+| property  | required | type                          | description                                                                                                                   | default                                 |
+|-----------|----------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
+| name      | optional | string                        | the name of the plugin.                                                                                                       | the basename of the plugin's directory. |
+| execute   | required | string                        | the command that should return an output that Plug can parse then render, this can be can be anything e.g. "sh", "node", etc. | null                                    |
+| main      | optional | string                        | this file path will get passed to the execute command. e.g. "main.sh".                                                        | null                                    |
+| interval  | optional | number (milliseconds)         | the time between each execution.                                                                                              | -1                                      |
+| alignment | optional | "left" \| "right" \| "center" | the alignment inside the GNOME panel.                                                                                         | set by GNOME.                           |
+| priority  | optional | number                        | the priority inside the GNOME panel.                                                                                          | set by GNOME.                           |
+
+#### Here's a few examples of what config.json should look like:
+
+```json
+{
+  "execute": "sh",
+  "main": "main.sh",
+  "alignment": "left",
+  "priority": 2
+}
+```
+
+```json
+{
+  "execute": "xclip -selection clipboard -o",
+  "interval": 1000
+}
+```
+
 TODO
+
+<!-- *~Any plugin that takes longer than 5 seconds to finish an execution gets killed, and disabled permanently unless enabled again manually by the user.*
+
+*~Plug automatically handles (re)loading plugins when their files are created, updated, or deleted.*
+
+*~An interval of -1 means that the plugin only executes once when it's (re)loaded.* -->

@@ -25,11 +25,12 @@ export function readDir(dir, callback)
 }
 
 /**
+* @param { string } path
 * @param { string } execute
-* @param { string } mainPath
+* @param { string } main
 * @param { (output: string[]) => void } callback
 */
-export function spawnPlugin(execute, mainPath, callback)
+export function spawnPlugin(path, execute, main, callback)
 {
   const envp = GLib.get_environ();
 
@@ -41,10 +42,16 @@ export function spawnPlugin(execute, mainPath, callback)
   {
     const argv = [];
 
-    // allows the execute command to have some arguments if needed by plugin
+    // allows the execute command to have some arguments
+    // if any are specified by the plugin
     execute.trim().split(' ').forEach((s) => argv.push(s));
 
-    argv.push(mainPath);
+    // the main file is optional
+    if (main)
+    {
+      // create an absolute path for the main file
+      argv.push([ path, main ].join('/'));
+    }
 
     const pid = spawnWithCallback(null, argv, envp, GLib.SpawnFlags.SEARCH_PATH, null, callback);
 
@@ -108,17 +115,24 @@ function readStream(stream, callback)
 {
   stream.read_line_async(GLib.PRIORITY_LOW, null, (source, result) =>
   {
-    const [ line ] = source.read_line_finish(result);
+    try
+    {
+      const [ line ] = source.read_line_finish(result);
 
-    if (!line)
+      if (!line)
+      {
+        callback(null);
+      }
+      else
+      {
+        callback(ByteArray.toString(line));
+  
+        readStream(source, callback);
+      }
+    }
+    catch
     {
       callback(null);
-    }
-    else
-    {
-      callback(ByteArray.toString(line));
-
-      readStream(source, callback);
     }
   });
 }

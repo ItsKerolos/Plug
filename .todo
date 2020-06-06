@@ -24,8 +24,9 @@ Features:
     should just grep them every second
 
 Documentation:
-  ☐ document the fact about the 5 seconds timeout for plugins
-  ☐ document about reloading
-  ☐ document intervals, positions, priorities
-  ☐ document execute, main
+  ✔ document the config file @done(20-06-06 08:18)
+  ✔ document the fact about the 5 seconds timeout for plugins @done(20-06-06 08:31)
+  ✔ document about [auto]-reloading @done(20-06-06 08:30)
+
+  ☐ document output
   ☐ document widgets

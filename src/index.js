@@ -179,7 +179,7 @@ function monitor_plugin_callback(file)
 */
 function valid_config(config)
 {
-  // default is none (won't be updated)
+  // default is no-interval
   if (typeof config.interval !== 'number')
     config.interval = -1;
 
@@ -188,14 +188,17 @@ function valid_config(config)
   if (config.interval > -1 && config.interval < 1000)
     config.interval = 1000;
   
-  // default alignment is right
+  // default alignment
   if (config.alignment !== 'left' && config.alignment !== 'center' && config.alignment !== 'right')
-    config.alignment = 'right';
+    config.alignment = null;
 
-  // default and minimal priority is 0
+  // default priority
   if (typeof config.priority !== 'number' || config.priority <= -1)
-    config.priority = 0;
-  
+    config.priority = null;
+
+  if (typeof config.main !== 'string')
+    config.main = null;
+
   return config;
 }
 
@@ -303,7 +306,7 @@ function load_plugin(path)
   }
 
   // required properties are required, and required is !important
-  if (!config || !config.main || !config.execute)
+  if (!config || !config.execute)
     return;
 
   // if plugin is killed then ignore loading it
@@ -313,17 +316,8 @@ function load_plugin(path)
   // validate the config object
   plugins[path].config = valid_config(config);
 
-  // create an absolute path for the main file
-  const mainPath = [ path, config.main ].join('/');
-
-  const mainFile = Gio.File.new_for_path(mainPath);
-  
-  // main file doesn't exists or misconfigured
-  if (!mainFile.query_exists(null))
-    return;
-
   // spawn the main file using the config.execute
-  const pid = plugins[path].processId = spawnPlugin(config.execute, mainPath, (output) =>
+  const pid = plugins[path].processId = spawnPlugin(path, config.execute, config.main, (output) =>
   {
     // to make sure nothing weird happened and
     // this function got called anyway
@@ -344,7 +338,8 @@ function load_plugin(path)
     // render the plugin's widgets
     render_plugin(path, config, output);
 
-    // run the plugin on a reload interval if its config specify it
+    // run the plugin on a reload interval
+    // if its config specify it
     if (config.interval > -1)
     {
       plugins[path].intervalTimeout = Mainloop.timeout_add(config.interval, () =>
@@ -447,12 +442,8 @@ function render_plugin(path, config, output)
   plugin.lastOutput = currentOutput;
 
   // handles no-output processes
-  if (output.length <= 0)
-  {
-    button.setLabel(config.name || id);
-
+  if (output.length <= 0 || !output[0])
     return;
-  }
   
   // TODO design the output language and how to parse it
 
@@ -470,9 +461,9 @@ function render_plugin(path, config, output)
   // destroying the old menu
   plugin.button.clearMenu();
   
-  const testLabel = Label({ label: output[1] });
+  // const testLabel = Label({ label: output[1] });
     
-  plugin.button.addMenuItem(testLabel);
+  // plugin.button.addMenuItem(testLabel);
 
   // indicator.menu.addMenuItem(Separator());
   // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
