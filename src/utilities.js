@@ -4,6 +4,8 @@ const { GLib, Gio } = imports.gi;
 
 const ByteArray = imports.byteArray;
 
+const propsRegex = /(\S+)(?::)(?!"|')(\S+)|(\S+)(?::'|")(.+)(?:'|")/g;
+
 /** need a directory using GJS needlessly complicated api
 * @param { string } dir
 * @param { () => void } callback
@@ -22,6 +24,38 @@ export function readDir(dir, callback)
 
     fileInfo = enumerator.next_file(null);
   }
+}
+
+/**
+* @param { string } line
+*/
+export function parseLine(line)
+{
+  const props = {};
+
+  const text = line.replace(propsRegex, (match, $1, $2, $3, $4) =>
+  {
+    if ($1)
+    {
+      // eslint-disable-next-line security/detect-object-injection
+      props[$1] = $2;
+
+      return '';
+    }
+    else if ($3)
+    {
+      // eslint-disable-next-line security/detect-object-injection
+      props[$3] = $4;
+
+      return '';
+    }
+  // clean unnecessary white-space
+  }).replace(/\s+/g, ' ').trim();
+
+  return {
+    text,
+    props
+  };
 }
 
 /**

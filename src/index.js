@@ -3,7 +3,7 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, spawnPlugin, killProcess } from './utilities.js';
+import { readDir, parseLine, spawnPlugin, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
@@ -446,11 +446,17 @@ function render_plugin(path, config, output)
     return;
   
   // TODO design the output language and how to parse it
+  // - a press-event callback
 
   // render the panel label & icon
 
-  button.setLabel(output[0]);
-  // button.setIcon('system-search-symbolic');
+  const first = parseLine(output[0]);
+
+  button.setLabel(first.text);
+
+  if (first.props.icon)
+    button.setIcon(first.props.icon);
+
   // button.setCallback(() => imports.ui.main.notify(config.name, output[1]));
 
   // const clipboard = imports.gi.St.Clipboard.get_default();
@@ -460,11 +466,16 @@ function render_plugin(path, config, output)
 
   // destroying the old menu
   plugin.button.clearMenu();
+
+  // output.slice(1).forEach((l) =>
+  // {
+  //   const line = parseLine(l);
+
+  //   const testLabel = Label({ text: line.text });
   
-  // const testLabel = Label({ label: output[1] });
-
-  // plugin.button.addMenuItem(testLabel);
-
+  //   plugin.button.addMenuItem(testLabel);
+  // });
+  
   // indicator.menu.addMenuItem(Separator());
   // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
   // indicator.menu.addMenuItem(Separator());
