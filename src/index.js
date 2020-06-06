@@ -3,7 +3,7 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, parseLine, spawnPlugin, killProcess } from './utilities.js';
+import { readDir, parseLine, spawnPlugin, spawnAsync, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
@@ -445,9 +445,6 @@ function render_plugin(path, config, output)
   if (output.length <= 0 || !output[0])
     return;
   
-  // TODO design the output language and how to parse it
-  // - a press-event callback
-
   // render the panel label & icon
 
   const first = parseLine(output[0]);
@@ -457,8 +454,10 @@ function render_plugin(path, config, output)
   if (first.props.icon)
     button.setIcon(first.props.icon);
 
-  // button.setCallback(() => imports.ui.main.notify(config.name, output[1]));
+  if (first.props.press)
+    button.setCallback(() => spawnAsync(first.props.press));
 
+  // TODO expose clipboard
   // const clipboard = imports.gi.St.Clipboard.get_default();
   // button.setCallback(() => clipboard.set_text(1, 'this is a test to clipboard'));
 
@@ -467,14 +466,15 @@ function render_plugin(path, config, output)
   // destroying the old menu
   plugin.button.clearMenu();
 
-  // output.slice(1).forEach((l) =>
-  // {
-  //   const line = parseLine(l);
+  // anything after the first output line
+  output.slice(1).forEach((l) =>
+  {
+    const line = parseLine(l);
 
-  //   const testLabel = Label({ text: line.text });
+    const testLabel = Label({ label: line.text });
   
-  //   plugin.button.addMenuItem(testLabel);
-  // });
+    plugin.button.addMenuItem(testLabel);
+  });
   
   // indicator.menu.addMenuItem(Separator());
   // indicator.menu.addMenuItem(Dropdown({ label: 'Hello', items: [ 'Mana', 'Skye', 'Mika' ] }));
