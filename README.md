@@ -10,7 +10,7 @@ But... a while ago I found an extension that was called [Argos](https://github.c
 
 Not wanting to give up on my dreams of a more personalized GNOME setup, I decided to go through hell.
 
-On paper Plug is like Argos... except not really, this will never be backward compatible with it.
+Plug is like Argos... except not really, this will never be backward compatible with it.
 
 ### Examples
 
@@ -19,9 +19,9 @@ TODO
 
 ### Installation
 
-Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).
+**Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).**
 
-Here's how to install it manually:
+Here's how to install the extension manually:
 
 ```
 git clone https://github.com/ItsKerolos/plug
@@ -43,25 +43,25 @@ Plug automatically loads new plugins, don't reload the shell or do anything else
 cd ~/.config/plug
 ```
 ```
-git clone https://github.com/[user]/[plug-plugin]
+git clone https://github.com/[user]/[plug-in-name]
 ```
 
 ### Creating Plugins
 
 Install Plug then go to ```~/.config/plug``` and create a directory for your plugin.
 
-Inside the directory create a file called ```config.json``` (required).
+Inside the directory create a file called ```plugin.json``` (required).
 
 | property  | required | type                          | description                                                                                                                   | default                                 |
 |-----------|----------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
 | name      | optional | string                        | the name of the plugin.                                                                                                       | the basename of the plugin's directory. |
-| execute   | required | string                        | the command that should return an output that Plug can parse then render, this can be can be anything e.g. "sh", "node", etc. | null                                    |
-| main      | optional | string                        | this file path will get passed to the execute command. e.g. "main.sh".                                                        | null                                    |
+| execute   | required | string                        | the command that should return an output that Plug can parse then render, this can be can be anything e.g. ```sh```, ```node```, etc. | null                                    |
+| main      | optional | string                        | this file path will get passed to the execute command. e.g. ```main.sh```.                                                        | null                                    |
 | interval  | optional | number (milliseconds)         | the time between each execution.                                                                                              | -1                                      |
 | alignment | optional | "left" \| "right" \| "center" | the alignment inside the GNOME panel.                                                                                         | set by GNOME.                           |
 | priority  | optional | number                        | the priority inside the GNOME panel.                                                                                          | set by GNOME.                           |
 
-#### Here's a few examples of what config.json should look like:
+#### Here's a few examples of what plugin.json should look like:
 
 ```json
 {

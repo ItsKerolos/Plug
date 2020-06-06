@@ -273,7 +273,7 @@ function disable_plugin(path)
 */
 function load_plugin(path)
 {
-  const configPath = [ path, 'config.json' ].join('/');
+  const configPath = [ path, 'plugin.json' ].join('/');
 
   const configFile = Gio.File.new_for_path(configPath);
 
@@ -445,6 +445,8 @@ function render_plugin(path, config, output)
   if (output.length <= 0 || !output[0])
     return;
   
+  // TODO add image to button @easy
+
   // TODO design the output language and how to parse it
 
   // render the panel label & icon
