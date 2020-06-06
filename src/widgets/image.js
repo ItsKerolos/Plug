@@ -66,7 +66,7 @@ export const Image = ({ url, mode, width, height, contain }) =>
   else
   {
     icon =  new St.Icon({
-      gicon: (is_file) ? Gio.icon_new_for_string(url) : new Gio.ThemedIcon({ name: url }),
+      gicon: Gio.icon_new_for_string(url),
       icon_size: (mode === 'image') ? Math.max(width || 16, height || 16) : null,
       style_class: (mode === 'icon') ? 'popup-menu-icon' : null
     });

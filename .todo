@@ -11,7 +11,6 @@ Testing:
       (it won't be that hard to mock the GJS functions).
 
 Features:
-  ☐ enable using image files with button
   ☐ enable using the image widget with labels & sliders
 
   ☐ support markup on labels

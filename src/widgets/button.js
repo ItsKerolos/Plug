@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 
 const { main } = imports.ui;
-const { St, Clutter } = imports.gi;
+const { St, Gio, Clutter } = imports.gi;
 
 const PanelMenuButton = imports.ui.panelMenu.Button;
 
@@ -133,7 +133,7 @@ export const Button = (id, priority, alignment) =>
     setIcon: (icon) =>
     {
       _icon.visible = (icon) ? true : false;
-      _icon.icon_name = icon;
+      _icon.gicon = Gio.icon_new_for_string(icon);
     },
 
     setLabel: (text) =>
