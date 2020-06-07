@@ -48,9 +48,7 @@ export const Label = ({ vertical, text, image, icon, contain, press }) =>
 
   if (text)
   {
-    const _label = new St.Label({
-      text: text
-    });
+    const _label = new St.Label({ text });
 
     box.add(_label);
   }

@@ -1,6 +1,9 @@
 Performance Issues and Bugs:
   
 Testing:
+  ☐ invalid image url
+  ☐ invalid image path 
+
   ☐ setup a Jest environment for unit testing
     - we need to test
       (enable & disable & load & unload & killing)
@@ -8,7 +11,7 @@ Testing:
       (it won't be that hard to mock the GJS functions).
 
 Features:
-  ☐ enable using the image widget with labels & sliders
+  ☐ enable using the image widget with sliders
 
   ☐ support markup on labels
 
@@ -20,9 +23,3 @@ Features:
     should just grep them every second
 
 Documentation:
-  ✔ document the config file @done(20-06-06 08:18)
-  ✔ document the fact about the 5 seconds timeout for plugins @done(20-06-06 08:31)
-  ✔ document about [auto]-reloading @done(20-06-06 08:30)
-
-  ☐ document output
-  ☐ document widgets

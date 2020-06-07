@@ -1,5 +1,3 @@
-**This project is still a WIP**
-
 ### Rambling
 
 As much as I love GNOME, I would have never attempted to write an extension for it, I researched it a while ago, and when I saw what I have to go through, I promised myself to never get anywhere near it.
@@ -12,10 +10,12 @@ Not wanting to give up on my dreams of a more personalized GNOME setup, I decide
 
 Plug is like Argos... except not really, this will never be backward compatible with it.
 
-### Examples
+---
+##### EXAMPLES & AVAILABLE PLUGINS:
+##### ~*Want to add yours to the list? Open a Pull Request.*
 
-TODO
-
+##### TODO
+---
 
 ### Installation
 
@@ -35,6 +35,9 @@ npm install && npm run build && npm run link_gnome
 
 After that just reload the shell and make sure Plug is enabled in the Extensions app.
 
+---
+
+
 ### Installing Plugins
 
 Plug automatically loads new plugins, don't reload the shell or do anything else.
@@ -45,6 +48,8 @@ cd ~/.config/plug
 ```
 git clone https://github.com/[user]/[plug-in-name]
 ```
+
+---
 
 ### Creating Plugins
 
@@ -79,10 +84,69 @@ Inside the directory create a file called ```plugin.json``` (required).
 }
 ```
 
-TODO
 
-<!-- *~Any plugin that takes longer than 5 seconds to finish an execution gets killed, and disabled permanently unless enabled again manually by the user.*
+
+*~Any plugin that takes longer than 5 seconds to finish an execution gets killed, and disabled permanently unless the user enables it again manually.*
 
 *~Plug automatically handles (re)loading plugins when their files are created, updated, or deleted.*
 
-*~An interval of -1 means that the plugin only executes once when it's (re)loaded.* -->
+*~An interval of -1 means that the plugin only executes once when it's (re)loaded.*
+
+---
+
+If you need more than to just render a plain label in the panel, you need to output some stuff to Plug, you can do that in whatever manner you like, it depends on your choice of ```config.execute```.
+
+###### BASH
+```bash
+echo "Hello"
+```
+###### NODE
+```js
+console.log('Hello');
+```
+###### PYTHON
+```python
+print('Hello')
+```
+
+---
+
+Now before we get to list what exactly is available, you need to know about formatting your output, so that Plug can understand it.
+
+
+The first line of output is always what controls the plugin's panel button, it only has limited number of props available, the following examples showcase all possible props to use in the first line and their formatting.
+
+##### Here's how to render just a label:
+```bash
+echo 'Hello'
+```
+
+##### Here's is how to render just a icon:
+```bash
+echo '| icon(/~config/plug/[plug-in]/icon.png)'
+```
+
+##### Here's is how to render both:
+```bash
+echo 'Hello | icon(/~config/plug/[plug-in]/icon.png)'
+```
+
+##### This is how render both and have a press event:
+```bash
+echo "Hello | icon(https://fakecdn.io/icon.png) | press('pacman -Su')"
+```
+
+---
+
+*~As you can gather props must be separated with:*
+```
+ | 
+```
+*~the whitespace is REQUIRED*
+
+---
+All other lines after that control the menu that appears when the plugin's panel button is pressed.
+
+TODO write few examples to showcase formatting  
+TODO write a notice about prop optional options ({ })  
+TODO write a table of all available props and their options  

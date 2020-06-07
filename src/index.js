@@ -163,10 +163,14 @@ function monitor_plugin_callback(file)
   const path = file.get_path();
   const parent_path = file.get_parent().get_path();
 
-  // if the parent it self changes
-  // monitor_plugin_callback gets triggered
+  // if the parent itself changes
+  // monitor_plugin_callback gets triggered with the plugin
+  // directory path instead of a file path
+  // in that case parent_path returns the ~/.config/plug instead of a ~/.config/plug/[plug-in]
   // but changes to the parent directories
   // are handled in a different callback
+
+  // only reload if the path is a plugin directory
   if (plugins[parent_path])
   {
     // remove the timeout indicator
