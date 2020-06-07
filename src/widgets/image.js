@@ -2,25 +2,27 @@
 
 const { St, Gio, GLib, GdkPixbuf } = imports.gi;
 
-const { PopupMenuItem } = imports.ui.popupMenu;
-
 /**
-* @param { { url: string, mode: 'icon' | 'image', width: number, height: number, contain: boolean  } } param0
+* @param { { url: string, mode: 'icon' | 'image', width: number, height: number } } options
 */
-export const Image = ({ url, mode, width, height, contain }) =>
+export const Image = (options) =>
 {
   // default settings
 
-  if (typeof contain !== 'boolean')
-    contain = true;
+  const { width, height } = options;
+
+  let { url, mode } = options;
+
+  if (typeof options === 'string')
+    url = options;
 
   mode = mode || 'icon';
 
   let is_file = url.startsWith('/');
   
-  const item = new PopupMenuItem('');
-
-  let icon;
+  const box = new St.BoxLayout({
+    style_class: 'image-box'
+  });
 
   if (url.startsWith('https://') || url.startsWith('http://'))
   {
@@ -57,27 +59,24 @@ export const Image = ({ url, mode, width, height, contain }) =>
     // using the Pixbuf here instead of the Gio.icon_new_for_string()
     // cause a wired issue with set_size
     // we have to settle for loading the same file twice
-    icon = St.TextureCache.get_default().load_gicon(null, Gio.icon_new_for_string(url), size, 1, 1);
+    const icon = St.TextureCache.get_default().load_gicon(null, Gio.icon_new_for_string(url), size, 1, 1);
 
     icon.set_size(width || icon_format.width, height || icon_format.height);
+
+    box.add_child(icon);
   }
   // loads an icon (square-image)
   // from a file or a themed icon
   else
   {
-    icon =  new St.Icon({
+    const icon =  new St.Icon({
       gicon: Gio.icon_new_for_string(url),
       icon_size: (mode === 'image') ? Math.max(width || 16, height || 16) : null,
       style_class: (mode === 'icon') ? 'popup-menu-icon' : null
     });
+
+    box.add_child(icon);
   }
 
-  if (contain)
-  {
-    item.add_child(icon);
-  
-    return item;
-  }
-
-  return icon;
+  return box;
 };

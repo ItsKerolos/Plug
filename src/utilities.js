@@ -121,31 +121,62 @@ export function parseLine(str)
 
   const text = split.shift();
 
-  const props = {};
-
-  split.forEach((prop) =>
+  const parseProps = (array) =>
   {
-    const first = prop.indexOf('(');
-    const last = prop.lastIndexOf(')');
+    const props = {};
 
-    if (first && last)
+    try
     {
-      const key = prop.substring(0, first);
-      const value = prop.substring(first + 1, last);
+      array.forEach((prop) =>
+      {
+        const first = prop.indexOf('(');
+        const last = prop.lastIndexOf(')');
+    
+        if (first > -1 && last > -1)
+        {
+          const key = prop.substring(0, first).trim();
+          const value = prop.substring(first + 1, last).trim();
+    
+          // value string is not empty
+          if (value.length >= 1)
+          {
+            const first = value.indexOf('{');
+            const last = value.lastIndexOf('}');
+  
+            // if value has nested props
+            if (first > -1 && last > -1)
+            {
+              // eslint-disable-next-line security/detect-object-injection
+              props[key] = parseProps(value.substring(first + 1, last).trim().split(','));
+            }
+            else
+            {
+              // eslint-disable-next-line security/detect-object-injection
+              props[key] = value;
+            }
+          }
+          else
+          {
+            // eslint-disable-next-line security/detect-object-injection
+            props[key] = true;
+          }
+        }
+        else
+        {
+          // eslint-disable-next-line security/detect-object-injection
+          props[prop] = true;
+        }
+      });
+    }
+    catch
+    {
+      return {};
+    }
 
-      if (value.length >= 1)
-        // eslint-disable-next-line security/detect-object-injection
-        props[key] = value;
-      else
-        // eslint-disable-next-line security/detect-object-injection
-        props[key] = true;
-    }
-    else
-    {
-      // eslint-disable-next-line security/detect-object-injection
-      props[prop] = true;
-    }
-  });
+    return props;
+  };
+
+  const props = parseProps(split);
 
   return {
     text,

@@ -451,12 +451,9 @@ function render_plugin(path, config, output)
 
   button.setLabel(first.text);
 
-  button.setIcon(first.props.icon || null);
+  button.setIcon(first.props.icon?.url || first.props.icon || null);
 
-  if (first.props.press)
-    button.setCallback(() => spawnAsync(first.props.press));
-  else
-    button.setCallback(null);
+  button.setPress(first.props.press || null);
 
   // TODO expose clipboard
   // const clipboard = imports.gi.St.Clipboard.get_default();
@@ -467,12 +464,15 @@ function render_plugin(path, config, output)
   // destroying the old menu
   plugin.button.clearMenu();
 
-  // anything after the first output line
-  output.slice(1).forEach((l) =>
+  // everything after the first output line
+  output.slice(1).forEach((line) =>
   {
-    const line = parseLine(l);
+    line = parseLine(line);
 
-    const testLabel = Label({ label: line.text });
+    const testLabel = Label({
+      ...line.props,
+      text: line.text
+    });
   
     plugin.button.addMenuItem(testLabel);
   });

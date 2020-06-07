@@ -1,6 +1,11 @@
-.label-box > .popup-menu-icon
+.label-box > .image-box
 {
-  margin-right: 6px;
+  margin-right: 5px;
+}
+
+.vertical-label-box > .image-box
+{
+  margin-bottom: 5px;
 }
 
 .slider-box

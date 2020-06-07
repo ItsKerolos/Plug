@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 
+import { spawnAsync } from '../utilities.js';
+
 const { main } = imports.ui;
 const { St, Gio, Clutter } = imports.gi;
 
@@ -20,7 +22,7 @@ const PanelMenuButton = imports.ui.panelMenu.Button;
 * @property { () => void } destroy
 * @property { () => void } clearMenu
 * @property { (item) => void } addMenuItem
-* @property { (callback: Function) => void } setCallback
+* @property { string } setPress
 * @property { (icon: string) => void } setIcon
 * @property { (text: string) => void } setLabel
 */
@@ -117,7 +119,7 @@ export const Button = (id, priority, alignment) =>
       button.menu.addMenuItem(item);
     },
 
-    setCallback: (callback) =>
+    setPress: (press) =>
     {
       if (pressSignalId)
       {
@@ -126,8 +128,8 @@ export const Button = (id, priority, alignment) =>
         pressSignalId = null;
       }
     
-      if (callback)
-        pressSignalId = button.connect('button-press-event', callback);
+      if (press)
+        pressSignalId = button.connect('button-press-event', () => spawnAsync(press));
     },
 
     setIcon: (icon) =>

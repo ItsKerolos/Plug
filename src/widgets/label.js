@@ -1,42 +1,55 @@
 /* eslint-disable camelcase */
 
+import { Image } from './image.js';
+
+import { spawnAsync } from '../utilities.js';
+
 const { St } = imports.gi;
 
-const { PopupMenuItem } = imports.ui.popupMenu;
+const { PopupBaseMenuItem } = imports.ui.popupMenu;
 
 /**
-* @param { { label: string, icon: string, style_class: string, contain: boolean } } param0
+* @param { { text: string, vertical: boolean, image: any, icon: any, contain: boolean, press: string } } param0
 */
-export const Label = ({ label, icon, style_class, contain }) =>
+export const Label = ({ vertical, text, image, icon, contain, press }) =>
 {
   if (typeof contain !== 'boolean')
     contain = true;
   
-  const item = new PopupMenuItem('');
+  if (typeof vertical !== 'boolean')
+    vertical = false;
+
+  const item = new PopupBaseMenuItem();
 
   const box = new St.BoxLayout({
-    style_class: style_class || 'label-box',
-    x_expand: true
+    vertical,
+    x_expand: true,
+    style_class: (vertical) ? 'vertical-label-box' : 'label-box'
   });
 
-  item.label.visible = false;
-
-  if (icon)
+  if (image)
   {
-    const _icon =  new St.Icon({
-      // gicon: new Gio.ThemedIcon({ name: 'system-search-symbolic' }),
-      // icon_name: 'system-search-symbolic',
-      icon_name: icon,
-      style_class: 'popup-menu-icon'
+    const _image = Image({
+      ...image,
+      mode: 'image'
+    });
+
+    box.add(_image);
+  }
+  else if (icon)
+  {
+    const _icon = Image({
+      ...icon,
+      mode: 'icon'
     });
 
     box.add(_icon);
   }
 
-  if (label)
+  if (text)
   {
     const _label = new St.Label({
-      text: label
+      text: text
     });
 
     box.add(_label);
@@ -45,6 +58,9 @@ export const Label = ({ label, icon, style_class, contain }) =>
   if (contain)
   {
     item.add_child(box);
+
+    if (press)
+      item.connect('button-press-event', () => spawnAsync(press));
   
     return item;
   }
