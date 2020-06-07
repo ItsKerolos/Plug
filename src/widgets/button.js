@@ -133,7 +133,9 @@ export const Button = (id, priority, alignment) =>
     setIcon: (icon) =>
     {
       _icon.visible = (icon) ? true : false;
-      _icon.gicon = Gio.icon_new_for_string(icon);
+      
+      if (icon)
+        _icon.gicon = Gio.icon_new_for_string(icon);
     },
 
     setLabel: (text) =>

@@ -4,8 +4,6 @@ const { GLib, Gio } = imports.gi;
 
 const ByteArray = imports.byteArray;
 
-const propsRegex = /(\S+)(?::)(?!"|')(\S+)|(\S+)(?::'|")(.+)(?:'|")/g;
-
 /** need a directory using GJS needlessly complicated api
 * @param { string } dir
 * @param { () => void } callback
@@ -29,18 +27,16 @@ export function readDir(dir, callback)
 /** this is a mess but it's faster
 * than any regex that does the same thing
 * and this is more predictable
-* TODO this should be tested when we get around unit testing
+* TODO this should be tested in several cases when we get around unit testing
 * @param { string } str
 */
-function getArgv(str)
+function parseArgv(str)
 {
   const result = [];
 
   let parts = [];
 
   let quote;
-
-  str = str.replace(/\\'/g, '\'').replace(/\\"/g, '"');
 
   for (let i = 0; i < str.length; i++)
   {
@@ -111,30 +107,45 @@ function getArgv(str)
 }
 
 /**
-* @param { string } line
+* @param { string } str
 */
-export function parseLine(line)
+export function parseLine(str)
 {
+  const split = str.split(' | ');
+
+  if (split.length === 1)
+    return {
+      text: split[0],
+      props: {}
+    };
+
+  const text = split.shift();
+
   const props = {};
 
-  const text = line.replace(propsRegex, (match, $1, $2, $3, $4) =>
+  split.forEach((prop) =>
   {
-    if ($1)
+    const first = prop.indexOf('(');
+    const last = prop.lastIndexOf(')');
+
+    if (first && last)
+    {
+      const key = prop.substring(0, first);
+      const value = prop.substring(first + 1, last);
+
+      if (value.length >= 1)
+        // eslint-disable-next-line security/detect-object-injection
+        props[key] = value;
+      else
+        // eslint-disable-next-line security/detect-object-injection
+        props[key] = true;
+    }
+    else
     {
       // eslint-disable-next-line security/detect-object-injection
-      props[$1] = $2;
-
-      return '';
+      props[prop] = true;
     }
-    else if ($3)
-    {
-      // eslint-disable-next-line security/detect-object-injection
-      props[$3] = $4;
-
-      return '';
-    }
-  // clean unnecessary white-space
-  }).replace(/\s+/g, ' ').trim();
+  });
 
   return {
     text,
@@ -160,7 +171,7 @@ export function spawnPlugin(path, execute, main, callback)
   {
     // allows the execute command to have some arguments
     // if any are specified by the plugin
-    const argv = getArgv(execute);
+    const argv = parseArgv(execute);
 
     // the main file is optional
     if (main)
@@ -193,7 +204,7 @@ export function killProcess(pid)
 */
 export function spawnAsync(command)
 {
-  GLib.spawn_async(null, getArgv(command), null, GLib.SpawnFlags.SEARCH_PATH, null);
+  GLib.spawn_async(null, parseArgv(command), null, GLib.SpawnFlags.SEARCH_PATH, null);
 }
 
 /** spawns a new process and awaits it death

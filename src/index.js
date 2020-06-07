@@ -451,11 +451,12 @@ function render_plugin(path, config, output)
 
   button.setLabel(first.text);
 
-  if (first.props.icon)
-    button.setIcon(first.props.icon);
+  button.setIcon(first.props.icon || null);
 
   if (first.props.press)
     button.setCallback(() => spawnAsync(first.props.press));
+  else
+    button.setCallback(null);
 
   // TODO expose clipboard
   // const clipboard = imports.gi.St.Clipboard.get_default();
