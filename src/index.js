@@ -113,7 +113,7 @@ function monitor_root_callback(file, otherFile)
   const otherPath = otherFile?.get_path();
 
   const exists = file.query_exists(null);
-  
+
   // remove the timeout indicator
   directory_monitor_timeout = null;
 
@@ -125,17 +125,15 @@ function monitor_root_callback(file, otherFile)
     {
       // if a plugin directory moved
 
-      // the old path needs to be unloaded
-      // and the new path needs to be loaded
+      // the old path needs to be disabled
 
       unload_plugin(path);
-      load_plugin(otherPath);
-
-      // the old path needs to be disabled
-      // and the new path needs to be enabled
-
       disable_plugin(path);
+
+      // then the new path should to be enabled
+
       enable_plugin(otherPath);
+      load_plugin(otherPath);
     }
     // deleted
     else if (plugins[path])
@@ -162,15 +160,29 @@ function monitor_root_callback(file, otherFile)
 
 function monitor_plugin_callback(file)
 {
-  const path = file.get_parent().get_path();
+  const path = file.get_path();
+  const parent_path = file.get_parent().get_path();
 
-  // remove the timeout indicator
-  plugins[path].monitorTimeout = null;
+  // if the parent it self changes
+  // monitor_plugin_callback gets triggered
+  // but changes to the parent directories
+  // are handled in a different callback
+  if (plugins[parent_path])
+  {
+    // remove the timeout indicator
+    plugins[parent_path].monitorTimeout = null;
 
-  // reload plugin
-
-  unload_plugin(path);
-  load_plugin(path);
+    // reload plugin
+    unload_plugin(parent_path);
+    load_plugin(parent_path);
+  }
+  // however the timeout indicator
+  // should always be removed
+  else if (plugins[path])
+  {
+    // remove the timeout indicator
+    plugins[path].monitorTimeout = null;
+  }
 }
 
 /** replace invalid or missing properties from config
@@ -237,6 +249,9 @@ function disable_plugin(path)
 {
   const plugin = plugins[path];
 
+  if (!plugin)
+    return;
+  
   // stop monitoring the plugin directory
 
   // no need to stop the monitor timeout here
@@ -273,6 +288,9 @@ function disable_plugin(path)
 */
 function load_plugin(path)
 {
+  if (!plugins[path])
+    return;
+    
   const configPath = [ path, 'plugin.json' ].join('/');
 
   const configFile = Gio.File.new_for_path(configPath);
@@ -377,6 +395,9 @@ function load_plugin(path)
 function unload_plugin(path)
 {
   const plugin = plugins[path];
+
+  if (!plugin)
+    return;
 
   // the following timeout are canceled
   // because they purpose were to cause a reload
