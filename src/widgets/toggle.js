@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-unused-vars
-const { PopupSwitchMenuItem, PopupMenuItem } = imports.ui.popupMenu;
+const { PopupSwitchMenuItem } = imports.ui.popupMenu;
 
 /**
 * @param { { label: string, state: boolean } } param0

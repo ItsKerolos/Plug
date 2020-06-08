@@ -1,11 +1,11 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
-  treeshake: false,
+  treeshake: true,
   input: 'src/index.js',
   output: {
     file: 'build/extension.js',
-    format: 'cjs',
+    format: 'esm',
     name: 'bundle'
   },
   plugins: [

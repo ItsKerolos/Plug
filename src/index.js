@@ -1,19 +1,19 @@
-/* eslint-disable camelcase, no-unused-vars */
+/* eslint-disable camelcase */
 /* eslint-disable security/detect-object-injection */
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, parseLine, spawnPlugin, spawnAsync, killProcess } from './utilities.js';
+import { readDir, parseLine, spawnPlugin, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
 import { Label } from './widgets/label.js';
-import { Image } from './widgets/image.js';
-import { Separator } from './widgets/separator.js';
+// import { Image } from './widgets/image.js';
+// import { Separator } from './widgets/separator.js';
 
-import { Dropdown } from './widgets/dropdown.js';
-import { Toggle } from './widgets/toggle.js';
-import { Slider } from './widgets/slider.js';
+// import { Dropdown } from './widgets/dropdown.js';
+// import { Toggle } from './widgets/toggle.js';
+// import { Slider } from './widgets/slider.js';
 
 const { GLib, Gio } = imports.gi;
 
@@ -575,3 +575,12 @@ function disable()
 
   plugins = null;
 }
+
+// exclude the unused required functions
+// from the bundle tree-shaking process
+
+global.exclude_from_treeshake = {
+  init,
+  enable,
+  disable
+};
