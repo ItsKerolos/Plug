@@ -24,6 +24,18 @@ export function readDir(dir, callback)
   }
 }
 
+export function isEmpty(obj)
+{
+  for (const prop in obj)
+  {
+    // eslint-disable-next-line no-prototype-builtins
+    if (obj.hasOwnProperty(prop))
+      return false;
+  }
+
+  return true;
+}
+
 /** this is a mess but it's faster
 * than any regex that does the same thing
 * and this is more predictable
@@ -131,6 +143,9 @@ export function parseLine(str)
       {
         const first = prop.indexOf('(');
         const last = prop.lastIndexOf(')');
+
+        if (prop.length <= 0)
+          return;
     
         if (first > -1 && last > -1)
         {

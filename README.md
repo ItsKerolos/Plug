@@ -41,10 +41,7 @@ cd ~/.config/plug
 git clone https://github.com/[user]/[plug-in-name]
 ```
 
-##### LIST OF AWESOME PLUGINS TO TRY:
-##### ~*Want to add yours to the list? Open a Pull Request.*
-
-##### TODO
+##### LIST OF AWESOME PLUGINS TO TRY: TODO
 
 ---
 
@@ -81,9 +78,7 @@ Inside the directory create a file called ```plugin.json``` (required).
 }
 ```
 
-
-
-*~Any plugin that takes longer than 5 seconds to finish an execution gets killed, and disabled permanently unless the user enables it again manually.*
+***~Any plugin that takes longer than 5 seconds to finish an execution gets killed, and disabled permanently unless the user enables it again manually.***
 
 *~Plug automatically handles (re)loading plugins when their files are created, updated, or deleted.*
 
@@ -134,10 +129,9 @@ echo "Hello | icon(https://fakecdn.io/icon.png) | press('pacman -Su')"
 ```
 
 *As you can gather:*  
-*~the first prop is always the label.*  
-*~props must be separated with ``` | ``` (the whitespace is REQUIRED)*
+*~the first prop is **always the label.***  
+*~props must be separated with ``` | ``` (the whitespace is **REQUIRED**)*
 
----
 All other lines after the first one are rendered inside the menu that appears when the panel button is pressed.
 
 ##### Here's some examples of what you can do in those lines:
@@ -156,6 +150,12 @@ echo "Hello | icon(system-search-symbolic) | press('google-chrome-stable')"
 *~Some props like ```image()``` have (optional) parameters like width and height*  
 *To use them, surround them with ```{}``` and separate them with ```,```*  
 *In this case, the whitespace is optional.*
+
+
+##### To render a separator between widgets output a line with no label and no props:
+```bash
+echo " | "
+```
 
 ---
 

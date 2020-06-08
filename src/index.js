@@ -3,13 +3,12 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, parseLine, spawnPlugin, killProcess } from './utilities.js';
+import { readDir, isEmpty, parseLine, spawnPlugin, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
 import { Label } from './widgets/label.js';
-// import { Image } from './widgets/image.js';
-// import { Separator } from './widgets/separator.js';
+import { Separator } from './widgets/separator.js';
 
 // import { Dropdown } from './widgets/dropdown.js';
 // import { Toggle } from './widgets/toggle.js';
@@ -492,18 +491,25 @@ function render_plugin(path, config, output)
   // everything after the first output line
   output.slice(1).forEach((line) =>
   {
-    // TODO support Separator()
-
-    // TODO deprecate argos-spotify (everything is already in place to move over to plug)
-
     line = parseLine(line);
 
-    const testLabel = Label({
-      ...line.props,
-      text: line.text
-    });
+    let widget;
+
+    // Separator (no text and no props)
+    if (!line.text && isEmpty(line.props))
+    {
+      widget = Separator();
+    }
+    // Label / Image
+    else
+    {
+      widget = Label({
+        ...line.props,
+        text: line.text
+      });
+    }
   
-    plugin.button.addMenuItem(testLabel);
+    plugin.button.addMenuItem(widget);
   });
   
   // indicator.menu.addMenuItem(Separator());
