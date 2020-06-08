@@ -10,13 +10,6 @@ Not wanting to give up on my dreams of a more personalized GNOME setup, I decide
 
 Plug is like Argos... except not really, this will never be backward compatible with it.
 
----
-##### EXAMPLES & AVAILABLE PLUGINS:
-##### ~*Want to add yours to the list? Open a Pull Request.*
-
-##### TODO
----
-
 ### Installation
 
 **Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).**
@@ -37,7 +30,6 @@ After that just reload the shell and make sure Plug is enabled in the Extensions
 
 ---
 
-
 ### Installing Plugins
 
 Plug automatically loads new plugins, don't reload the shell or do anything else.
@@ -48,6 +40,11 @@ cd ~/.config/plug
 ```
 git clone https://github.com/[user]/[plug-in-name]
 ```
+
+##### LIST OF AWESOME PLUGINS TO TRY:
+##### ~*Want to add yours to the list? Open a Pull Request.*
+
+##### TODO
 
 ---
 
@@ -66,7 +63,7 @@ Inside the directory create a file called ```plugin.json``` (required).
 | alignment | optional | "left" \| "right" \| "center" | the alignment inside the GNOME panel.                                                                                         | set by GNOME.                           |
 | priority  | optional | number                        | the priority inside the GNOME panel.                                                                                          | set by GNOME.                           |
 
-#### Here's a few examples of what plugin.json should look like:
+##### Here's a few examples of what plugin.json should look like:
 
 ```json
 {
@@ -136,15 +133,9 @@ echo 'Hello | icon(system-search-symbolic)'
 echo "Hello | icon(https://fakecdn.io/icon.png) | press('pacman -Su')"
 ```
 
----
-
-*~As you can gather:*  
+*As you can gather:*  
 *~the first prop is always the label.*  
-*~props must be separated with..*
-```
- | 
-```
-*~the whitespace is REQUIRED*  
+*~props must be separated with ``` | ``` (the whitespace is REQUIRED)*
 
 ---
 All other lines after the first one are rendered inside the menu that appears when the panel button is pressed.
@@ -162,9 +153,9 @@ echo "Hello | vertical | image({ url(system-search-symbolic), width(32) })"
 ```bash
 echo "Hello | icon(system-search-symbolic) | press('google-chrome-stable')"
 ```
-*~Some props like image have [optional] parameters like width and height*  
+*~Some props like ```image()``` have (optional) parameters like width and height*  
 *To use them, surround them with ```{}``` and separate them with ```,```*  
-*~in this case, the whitespace is optional*
+*In this case, the whitespace is optional.*
 
 ---
 

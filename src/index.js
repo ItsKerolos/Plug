@@ -492,6 +492,10 @@ function render_plugin(path, config, output)
   // everything after the first output line
   output.slice(1).forEach((line) =>
   {
+    // TODO support Separator()
+
+    // TODO deprecate argos-spotify (everything is already in place to move over to plug)
+
     line = parseLine(line);
 
     const testLabel = Label({
