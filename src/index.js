@@ -198,10 +198,10 @@ function valid_config(config)
   if (typeof config.interval !== 'number')
     config.interval = -1;
 
-  // if interval is higher than -1 but lower than 1000ms
-  // then force it to be 1000ms
-  if (config.interval > -1 && config.interval < 1000)
-    config.interval = 1000;
+  // if interval is higher than -1 but lower than 500ms
+  // then force it to be 500ms
+  if (config.interval > -1 && config.interval < 500)
+    config.interval = 500;
   
   // default alignment
   if (config.alignment !== 'left' && config.alignment !== 'center' && config.alignment !== 'right')
