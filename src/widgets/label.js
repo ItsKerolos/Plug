@@ -27,23 +27,40 @@ export const Label = ({ vertical, text, image, icon, contain, press }) =>
     style_class: (vertical) ? 'vertical-label-box' : 'label-box'
   });
 
-  if (image)
+  if (image || icon)
   {
-    const _image = Image({
-      ...image,
-      mode: 'image'
-    });
+    let props;
+    let mode;
 
-    box.add(_image);
-  }
-  else if (icon)
-  {
-    const _icon = Image({
-      ...icon,
-      mode: 'icon'
-    });
+    let _img;
 
-    box.add(_icon);
+    if (image)
+    {
+      props = image;
+      mode = 'image';
+    }
+    else
+    {
+      props = icon;
+      mode = 'icon';
+    }
+    
+    if (typeof props === 'object')
+    {
+      _img = Image({
+        ...props,
+        mode
+      });
+    }
+    else
+    {
+      _img = Image({
+        url: props,
+        mode
+      });
+    }
+
+    box.add(_img);
   }
 
   if (text)

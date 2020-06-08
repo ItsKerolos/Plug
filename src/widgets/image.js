@@ -5,21 +5,10 @@ const { St, Gio, GLib, GdkPixbuf } = imports.gi;
 /**
 * @param { { url: string, mode: 'icon' | 'image', width: number, height: number } } options
 */
-export const Image = (options) =>
+export const Image = ({ url, mode, width, height }) =>
 {
-  // default settings
-
-  const { width, height } = options;
-
-  let { url, mode } = options;
-
-  if (typeof options === 'string')
-    url = options;
-
-  mode = mode || 'icon';
-
   let is_file = url.startsWith('/');
-  
+
   const box = new St.BoxLayout({
     style_class: 'image-box'
   });
@@ -48,12 +37,21 @@ export const Image = (options) =>
     url = path;
   }
 
+  // if file is missing (does not exists)
+  if (is_file)
+  {
+    const file = Gio.File.new_for_path(url);
+
+    if (!file.query_exists(null))
+      url = '';
+  }
+
   // load image form file
   // with a custom size
-  if (is_file && mode === 'image')
+  if (url && is_file && mode === 'image')
   {
     const icon_format = GdkPixbuf.Pixbuf.new_from_file(url);
-    
+
     const size = Math.max(width || icon_format.width, height || icon_format.height);
 
     // using the Pixbuf here instead of the Gio.icon_new_for_string()
