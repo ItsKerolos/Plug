@@ -65,6 +65,8 @@ export const Button = (id, priority, alignment) =>
 
   let _priority = priority, _alignment = alignment;
 
+  // eslint-disable-next-line security/detect-object-injection
+  main.panel.statusArea[id] = null;
   main.panel.addToStatusArea(id, button, priority, alignment);
 
   // this is called parenting

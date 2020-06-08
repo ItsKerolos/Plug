@@ -277,9 +277,8 @@ function disable_plugin(path)
   }
 
   // destroy the plugin's button widget
-  plugin.button?.destroy();
+  unrender_plugin(path);
 
-  plugin.button =
   plugin.monitor =
   plugin.monitorId = null;
 
@@ -331,8 +330,13 @@ function load_plugin(path)
     return;
 
   // if plugin is killed then ignore loading it
+  // and if its button is render then destroy it
   if (config.killed)
+  {
+    unrender_plugin(path);
+
     return;
+  }
 
   // validate the config object
   plugins[path].config = valid_config(config);
@@ -427,7 +431,7 @@ function unload_plugin(path)
   // configs have properties that affect the rendering and functionality
   // of the plugin, meaning that they should be reloaded every cycle
 
-  plugin.config = null;
+  plugin.lastOutput = plugin.config = null;
 }
 
 /**
@@ -441,6 +445,14 @@ function render_plugin(path, config, output)
     output = [];
 
   const plugin = plugins[path];
+
+  // handles no-output processes
+  if (output.length <= 0 || !output[0])
+  {
+    unrender_plugin(path);
+
+    return;
+  }
 
   const id = path.split('/').pop();
 
@@ -464,10 +476,6 @@ function render_plugin(path, config, output)
 
   // update last output
   plugin.lastOutput = currentOutput;
-
-  // handles no-output processes
-  if (output.length <= 0 || !output[0])
-    return;
   
   // render the panel label & icon
 
@@ -528,6 +536,19 @@ function render_plugin(path, config, output)
   // }));
 }
 
+/**
+* @param { string } path
+*/
+function unrender_plugin(path)
+{
+  // destroy the plugin's button widget
+  plugins[path].button?.destroy();
+
+  plugins[path].button = null;
+
+  plugins[path].lastOutput = null;
+}
+
 /** disables a plugin permanently or until the user manually enables it again
 * @param { string } path
 * @param { number } pid
@@ -540,6 +561,8 @@ function kill_plugin(path, configPath, pid, config)
   killProcess(pid);
 
   // unload plugin
+
+  unrender_plugin(path);
   unload_plugin(path);
   
   // we won't disable the plugin because the user might want to enable it
