@@ -130,7 +130,7 @@ echo "Hello | icon(https://fakecdn.io/icon.png) | press('pacman -Su')"
 
 *As you can gather:*  
 *~the first prop is **always the label.***  
-*~props must be separated with ``` | ``` (the whitespace is **REQUIRED**)*
+*~props must be separated with ```|``` but this can be escaped with a backslash.*
 
 All other lines after the first one are rendered inside the menu that appears when the panel button is pressed.
 
@@ -148,9 +148,7 @@ echo "Hello | vertical | image({ url(system-search-symbolic), width(32) })"
 echo "Hello | icon(system-search-symbolic) | press('google-chrome-stable')"
 ```
 *~Some props like ```image()``` have (optional) parameters like width and height*  
-*To use them, surround them with ```{}``` and separate them with ```,```*  
-*In this case, the whitespace is optional.*
-
+*To use them, surround them with ```{}``` and separate them with ```,``` and this also this can be escaped with a backslash.*  
 
 ##### To render a separator between widgets output a line with no label and no props:
 ```bash

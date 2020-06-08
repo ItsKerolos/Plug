@@ -6,6 +6,7 @@ Testing:
       (enable & disable & load & unload & killing)
       those things can break the shell if an issue during them,
       (it won't be that hard to mock the GJS functions).
+    - tests for parse ops like detecting a separator line.
 
 Features:
   ☐ enable using the image widget with sliders

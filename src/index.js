@@ -10,8 +10,8 @@ import { Button } from './widgets/button.js';
 import { Label } from './widgets/label.js';
 import { Separator } from './widgets/separator.js';
 
-// import { Dropdown } from './widgets/dropdown.js';
 // import { Toggle } from './widgets/toggle.js';
+// import { Dropdown } from './widgets/dropdown.js';
 // import { Slider } from './widgets/slider.js';
 
 const { GLib, Gio } = imports.gi;
@@ -491,6 +491,9 @@ function render_plugin(path, config, output)
   // const clipboard = imports.gi.St.Clipboard.get_default();
   // button.setCallback(() => clipboard.set_text(1, 'this is a test to clipboard'));
 
+  // TODO launch urls in default app
+  // Gio.AppInfo.launch_default_for_uri(activeLine.href, null);
+
   // render the panel menu
 
   // destroying the old menu
@@ -609,8 +612,8 @@ function disable()
   plugins = null;
 }
 
-// exclude the unused required functions
-// from the bundle tree-shaking process
+// exclude the those functions
+// from the rollup tree-shaking
 
 global.exclude_from_treeshake = {
   init,

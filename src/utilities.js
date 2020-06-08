@@ -36,94 +36,13 @@ export function isEmpty(obj)
   return true;
 }
 
-/** this is a mess but it's faster
-* than any regex that does the same thing
-* and this is more predictable
-* TODO this should be tested in several cases when we get around unit testing
-* @param { string } str
-*/
-function parseArgv(str)
-{
-  const result = [];
-
-  let parts = [];
-
-  let quote;
-
-  for (let i = 0; i < str.length; i++)
-  {
-    const char = str.charAt(i);
-
-    // last char string
-    if ((str.length - 1) === i)
-    {
-      if (char === ' ')
-        continue;
-
-      if (!quote || quote !== char)
-        parts.push(char);
-
-      const part = parts.join('');
-
-      // ignore empty parts
-      if (part.length)
-        result.push(part);
-      
-      continue;
-    }
-  
-    // a quote
-    if (char === '\'' || char === '"')
-    {
-      if (quote && char === quote)
-      {
-        const part = parts.join('');
-
-        // ignore empty parts
-        if (part.length)
-          result.push(part);
-    
-        parts = [];
-        quote = null;
-      }
-      else if (quote && char !== quote)
-      {
-        parts.push(char);
-      }
-      else if (!quote)
-      {
-        quote = char;
-      }
-
-      continue;
-    }
-    
-    // whitespace
-    if (char === ' ' && !quote)
-    {
-      const part = parts.join('');
-
-      // ignore empty parts
-      if (part.length)
-        result.push(part);
-  
-      parts = [];
-    }
-    else
-    {
-      parts.push(char);
-    }
-  }
-
-  return result;
-}
-
 /**
 * @param { string } str
 */
 export function parseLine(str)
 {
-  const split = str.split(' | ');
+  // match unescaped '|'
+  const split = str.match(/([^\\\][^|]|\\\|)+/g);
 
   if (split.length === 1)
     return {
@@ -131,8 +50,11 @@ export function parseLine(str)
       props: {}
     };
 
-  const text = split.shift();
+  const text = split.shift().trim();
 
+  /**
+  * @param { string[] } array
+  */
   const parseProps = (array) =>
   {
     const props = {};
@@ -141,6 +63,12 @@ export function parseLine(str)
     {
       array.forEach((prop) =>
       {
+        // replace escaped '\|' '\,' with normal '|' ','
+        prop = prop
+          .replace('\\|', '|')
+          .replace('\\,', ',')
+          .trim();
+
         const first = prop.indexOf('(');
         const last = prop.lastIndexOf(')');
 
@@ -161,8 +89,11 @@ export function parseLine(str)
             // if value has nested props
             if (first > -1 && last > -1)
             {
+              // match unescaped ','
+              const s = value.substring(first + 1, last).match(/([^\\\][^,]|\\,)+/g);
+
               // eslint-disable-next-line security/detect-object-injection
-              props[key] = parseProps(value.substring(first + 1, last).trim().split(','));
+              props[key] = parseProps(s);
             }
             else
             {
@@ -217,17 +148,18 @@ export function spawnPlugin(path, execute, main, callback)
   {
     // allows the execute command to have some arguments
     // if any are specified by the plugin
-    const argv = parseArgv(execute);
+    let command = execute;
 
     // the main file is optional
     if (main)
     {
       // create an absolute path for the main file
-      // TEST this might break if it includes any whitespace
-      argv.push([ path, main ].join('/'));
+      const absolute = [ path, main ].join('/');
+
+      command = `${command} "${absolute}"`;
     }
 
-    const pid = spawnWithCallback(null, argv, envp, GLib.SpawnFlags.SEARCH_PATH, null, callback);
+    const pid = spawnWithCallback(null, [ 'bash', '-c', command ], envp, GLib.SpawnFlags.SEARCH_PATH, null, callback);
 
     return pid;
   }
@@ -250,7 +182,7 @@ export function killProcess(pid)
 */
 export function spawnAsync(command)
 {
-  GLib.spawn_async(null, parseArgv(command), null, GLib.SpawnFlags.SEARCH_PATH, null);
+  GLib.spawn_async(null, [ 'bash', '-c', command ], null, GLib.SpawnFlags.SEARCH_PATH, null);
 }
 
 /** spawns a new process and awaits it death
