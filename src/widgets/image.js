@@ -15,26 +15,28 @@ export const Image = ({ url, mode, width, height }) =>
 
   if (url.startsWith('https://') || url.startsWith('http://'))
   {
-    const id = url.split('/').pop();
+    const id = url.split('/').pop().trim();
 
-    // /home/[user]/.cache/[id] (probably)
-    const path = [ GLib.get_home_dir(), '.cache', id ].join('/');
+    // /home/[user]/.cache/[id]
+    const path = [ GLib.get_home_dir(), '.cache', id ].join('/').trim();
 
     const file = Gio.File.new_for_path(path);
-
-    // if the url does not exist
-    // then download it using curl
-    if (!file.query_exists(null))
+  
+    if (id && path)
     {
-      GLib.spawn_sync(null,  [ 'curl', '-o', path, url ], null, GLib.SpawnFlags.SEARCH_PATH, null);
+      // if the url does not exist
+      // then download it using curl
+      if (!file.query_exists(null))
+      {
+        GLib.spawn_sync(null,  [ 'curl', '-o', path, url ], null, GLib.SpawnFlags.SEARCH_PATH, null);
+      }
+      // switch the url with the file path
+      // and render it
+
+      is_file = true;
+  
+      url = path;
     }
-
-    // switch the url with the file path
-    // and render it
-
-    is_file = true;
-
-    url = path;
   }
 
   // if file is missing (does not exists)
