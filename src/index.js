@@ -431,7 +431,7 @@ function unload_plugin(path)
   // configs have properties that affect the rendering and functionality
   // of the plugin, meaning that they should be reloaded every cycle
 
-  plugin.lastOutput = plugin.config = null;
+  plugin.config = null;
 }
 
 /**

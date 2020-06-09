@@ -42,15 +42,24 @@ export function isEmpty(obj)
 export function parseLine(str)
 {
   // match unescaped '|'
-  const split = str.match(/([^\\\][^|]|\\\|)+/g);
+  const split = str.match(/(\\\||[^|])+/g);
 
-  if (split.length === 1)
+  if (!split || split.length <= 0)
     return {
-      text: split[0],
+      text: '',
       props: {}
     };
 
-  const text = split.shift().trim();
+  const text = split.shift()
+    // replace escaped '\|'
+    .replace('\\|', '|')
+    .trim();
+
+  if (split.length <= 0)
+    return {
+      text,
+      props: {}
+    };
 
   /**
   * @param { string[] } array
@@ -63,11 +72,7 @@ export function parseLine(str)
     {
       array.forEach((prop) =>
       {
-        // replace escaped '\|' '\,' with normal '|' ','
-        prop = prop
-          .replace('\\|', '|')
-          .replace('\\,', ',')
-          .trim();
+        prop = prop.trim();
 
         const first = prop.indexOf('(');
         const last = prop.lastIndexOf(')');
@@ -78,6 +83,7 @@ export function parseLine(str)
         if (first > -1 && last > -1)
         {
           const key = prop.substring(0, first).trim();
+
           const value = prop.substring(first + 1, last).trim();
     
           // value string is not empty
@@ -90,7 +96,7 @@ export function parseLine(str)
             if (first > -1 && last > -1)
             {
               // match unescaped ','
-              const s = value.substring(first + 1, last).match(/([^\\\][^,]|\\,)+/g);
+              const s = value.substring(first + 1, last).match(/(\\,|[^,])+/g);
 
               // eslint-disable-next-line security/detect-object-injection
               props[key] = parseProps(s);
@@ -98,7 +104,11 @@ export function parseLine(str)
             else
             {
               // eslint-disable-next-line security/detect-object-injection
-              props[key] = value;
+              props[key] = value
+                // replace escaped '\|'and '\,'
+                .replace('\\|', '|')
+                .replace('\\,', ',')
+                .trim();
             }
           }
           else

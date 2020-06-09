@@ -11,13 +11,16 @@ Testing:
 Features:
   ☐ enable using the image widget with sliders
 
-  ☐ support markup on labels
-
   ☐ expose main.notify('', '')
   ☐ expose https://gjs-docs.gnome.org/st10~1.0_api/st.clipboard
+  ☐ expose Gio.AppInfo.launch_default_for_uri
 
-  ☐ create a debug plugin to help developers create plugins
-    - plug should log all plugin errors to GNOME and the debug plugin
-    should just grep them every second
+  ☐ create a preferences window
+    - list all running plugins and their config values
+    - delete or disable (kill) plugins
+    - add a log window that plug and its plugins can log stuff to for better debugging.
 
 Documentation:
+  ☐ screenshots
+    - after we write formats to the new widgets,
+      since right now argos is still more feature-full.

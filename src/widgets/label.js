@@ -4,7 +4,7 @@ import { Image } from './image.js';
 
 import { spawnAsync } from '../utilities.js';
 
-const { St } = imports.gi;
+const { St, GLib, Clutter } = imports.gi;
 
 const { PopupBaseMenuItem } = imports.ui.popupMenu;
 
@@ -65,7 +65,15 @@ export const Label = ({ vertical, text, image, icon, contain, press }) =>
 
   if (text)
   {
-    const _label = new St.Label({ text });
+    const _label = new St.Label({
+      y_expand: true,
+      y_align: Clutter.ActorAlign.CENTER
+    });
+
+    const clutterText = _label.get_clutter_text();
+    
+    clutterText.use_markup = true;
+    clutterText.text = GLib.strcompress(text);
 
     box.add(_label);
   }

@@ -14,7 +14,9 @@ Plug is like Argos... except not really, this will never be backward compatible 
 
 **Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).**
 
-Here's how to install the extension manually:
+
+Here's how to install the extension manually:  
+This only supports the latest version of GNOME (That's 3.36).
 
 ```
 git clone https://github.com/ItsKerolos/plug
