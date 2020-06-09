@@ -218,7 +218,7 @@ function spawnWithCallback(workingDirectory, argv, envp, flags, childSetup, call
     })
   });
 
-  readStream(stdoutStream, (output) =>
+  processLine(stdoutStream, (output) =>
   {
     if (!output)
     {
@@ -235,23 +235,30 @@ function spawnWithCallback(workingDirectory, argv, envp, flags, childSetup, call
   return pid;
 }
 
-function readStream(stream, callback)
+function processLine(stream, callback)
 {
   stream.read_line_async(GLib.PRIORITY_LOW, null, (source, result) =>
   {
     try
     {
-      const [ line ] = source.read_line_finish(result);
+      const [ str ] = source.read_line_finish_utf8(result);
 
-      if (!line)
+      // stop reading at the first empty line
+      
+      // My GNOME session crashes if it reads a line after an empty line
+      // Bail out! GLib-GIO:ERROR:../glib/gio/gdatainputstream.c:978:g_data_input_stream_read_complete: assertion failed (bytes == read_length): (-1 == 2)
+
+      // I don't know enough about GLib to fix that
+
+      if (!str)
       {
         callback(null);
       }
       else
       {
-        callback(ByteArray.toString(line));
+        callback(str);
   
-        readStream(source, callback);
+        processLine(source, callback);
       }
     }
     catch
