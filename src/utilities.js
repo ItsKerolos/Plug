@@ -142,17 +142,23 @@ export function parseLine(str)
 
 /**
 * @param { string } path
-* @param { string } execute
-* @param { string } main
+* @param { import('.').Config } config
 * @param { (output: string[]) => void } callback
 */
-export function spawnPlugin(path, execute, main, callback)
+export function spawnPlugin(path, config, callback)
 {
+  const { execute, main } = config;
+
   const envp = GLib.get_environ();
 
   // pass the process some environment variables
-  // envp.push("ARGOS_VERSION=2");
-  // envp.push("ARGOS_MENU_OPEN=" + (this.menu.isOpen ? "true" : "false"));
+
+  // push the config values to the process
+  Object.keys(config).forEach((key) =>
+  {
+    // eslint-disable-next-line security/detect-object-injection
+    envp.push(`PL_CONFIG_${key.toUpperCase()}=${config[key]}`);
+  });
 
   try
   {

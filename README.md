@@ -10,10 +10,16 @@ Not wanting to give up on my dreams of a more personalized GNOME setup, I decide
 
 Plug is like Argos... except not really, this will never be backward compatible with it.
 
+Documentation:
+
+- [Installation.](#Installation)
+- [Installing Plugins.](#Installing-Plugins)
+- [Creating Plugins.](#Creating-Plugins)
+- [Configuring Plugins.](#Configuring-Plugins)
+
 ### Installation
 
 **Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).**
-
 
 Here's how to install the extension manually:  
 This only supports the latest version of GNOME (That's 3.36).
@@ -171,3 +177,31 @@ echo " | "
 | icon     | gicon \| path \| link  | [name]-[thing]-symbolic   </br> </br>  /[name]/[thing].[type]  </br> </br> https://[name]/[thing].[type]  </br> </br> | renders an image in a small square.                          | none               |
 | image    |  gicon \| path \| link | [name]-[thing]-symbolic  </br> </br> /[name]/[thing].[type]  </br> </br> https://[name]/[thing].[type]  </br> </br>   | render an image in full (or specified) size.                 | width </br> height |
 | press    | command                | pacman -Su </br> spotify                                                                                              | an event that executes a command when the widget is pressed. | none               |
+
+---
+
+### Configuring Plugins
+
+The values in plugin.json are passed to the execution process as environment variables.
+
+##### Something like this:
+```json
+{
+  "greetings": true,
+  "execute": "sh",
+  "main": "main.sh"
+}
+```
+
+##### Can be reached like this: (Config keys are prefixed with PL_CONFIG_ then the key in uppercase).*
+
+###### BASH
+```bash
+  if [[ "$PL_CONFIG_GREETINGS" == true ]]; then
+    TITLE="Hello"
+  else
+    TITLE=""
+  fi
+```
+
+Of course, you can do the same in any other language that supports environment variables.

@@ -342,7 +342,7 @@ function load_plugin(path)
   plugins[path].config = valid_config(config);
 
   // spawn the main file using the config.execute
-  const pid = plugins[path].processId = spawnPlugin(path, config.execute, config.main, (output) =>
+  const pid = plugins[path].processId = spawnPlugin(path, config, (output) =>
   {
     // to make sure nothing weird happened and
     // this function got called anyway
@@ -353,7 +353,7 @@ function load_plugin(path)
       plugins[path].config.killed
     )
       return;
-    
+
     // process is done, stop the process timeout
 
     Mainloop.source_remove(plugins[path].processTimeout);
