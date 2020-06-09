@@ -43,7 +43,9 @@ cd ~/.config/plug
 git clone https://github.com/[user]/[plug-in-name]
 ```
 
-##### LIST OF AWESOME PLUGINS TO TRY: TODO
+##### LIST OF AWESOME PLUGINS TO TRY:
+
+- [Spotify](https://github.com/ItsKerolos/plug-in-spotify): Shows you what's currently playing and offers some playback controls.
 
 ---
 
