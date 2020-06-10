@@ -542,7 +542,7 @@ function render_plugin(path, config, output)
         if (line.props.clipboard)
         {
           if (typeof line.props.clipboard === 'string' && line.props.clipboard.length > 0)
-            Clipboard.set_text(1, line.props.clipboard);
+            Clipboard.set_text(St.ClipboardType.CLIPBOARD, line.props.clipboard);
         }
       });
     }

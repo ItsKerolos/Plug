@@ -7,6 +7,13 @@ const { St, Gio, GLib, GdkPixbuf } = imports.gi;
 */
 export const Image = ({ url, mode, width, height }) =>
 {
+  // no url was provided
+  if (typeof url !== 'string' || url.length <= 0)
+  {
+    url = '';
+    mode = 'icon';
+  }
+
   let is_file = url.startsWith('/');
 
   const box = new St.BoxLayout({

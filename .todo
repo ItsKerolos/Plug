@@ -10,8 +10,6 @@ Testing:
     - tests for parse ops like detecting a separator line.
 
 Features:
-  ☐ enable using the image widget with sliders
-
   ☐ expose Gio.AppInfo.launch_default_for_uri
 
   ☐ create a preferences window
@@ -22,6 +20,5 @@ Features:
 Documentation:
   ☐ about markup
 
-  ☐ screenshots
-    - after we write formats to the new widgets,
-      since right now argos is still more feature-full.
+  ☐ rewrite the entire thing to be focused on widgets with code examples and screenshots instead of formatting.
+    - when we add more widgets.
