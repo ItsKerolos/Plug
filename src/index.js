@@ -3,7 +3,7 @@
 
 /// <reference path="../node_modules/gnome-shell-extension-types/global.d.ts"/>
 
-import { readDir, isEmpty, parseLine, spawnPlugin, killProcess } from './utilities.js';
+import { readDir, isEmpty, parseLine, spawnPlugin, spawnAsync, killProcess } from './utilities.js';
 
 import { Button } from './widgets/button.js';
 
@@ -14,10 +14,13 @@ import { Separator } from './widgets/separator.js';
 // import { Dropdown } from './widgets/dropdown.js';
 // import { Slider } from './widgets/slider.js';
 
-const { GLib, Gio } = imports.gi;
+const { main } = imports.ui;
+const { St, GLib, Gio } = imports.gi;
 
 const Mainloop = imports.mainloop;
 const ByteArray = imports.byteArray;
+
+const Clipboard = St.Clipboard.get_default();
 
 let directory;
 let directory_monitor;
@@ -487,10 +490,6 @@ function render_plugin(path, config, output)
 
   button.setPress(first.props.press || null);
 
-  // TODO expose clipboard
-  // const clipboard = imports.gi.St.Clipboard.get_default();
-  // button.setCallback(() => clipboard.set_text(1, 'this is a test to clipboard'));
-
   // TODO launch urls in default app
   // Gio.AppInfo.launch_default_for_uri(activeLine.href, null);
 
@@ -517,6 +516,34 @@ function render_plugin(path, config, output)
       widget = Label({
         ...line.props,
         text: line.text
+      });
+
+      // emits when the menu item is pressed
+      widget.connect('button-press-event', () =>
+      {
+        // launch a command
+        if (line.props.press)
+          spawnAsync(line.props.press);
+
+        // send a notification to the device
+        if (line.props.notify)
+        {
+          const title = line.props.notify.title || id;
+
+          let message = line.props.notify.message;
+
+          if (!message && typeof line.props.notify === 'string')
+            message = line.props.notify;
+
+          main.notify(title, message);
+        }
+
+        // copy text to the clipboard
+        if (line.props.clipboard)
+        {
+          if (typeof line.props.clipboard === 'string' && line.props.clipboard.length > 0)
+            Clipboard.set_text(1, line.props.clipboard);
+        }
       });
     }
   

@@ -2,16 +2,14 @@
 
 import { Image } from './image.js';
 
-import { spawnAsync } from '../utilities.js';
-
 const { St, GLib, Clutter } = imports.gi;
 
 const { PopupBaseMenuItem } = imports.ui.popupMenu;
 
 /**
-* @param { { text: string, vertical: boolean, image: any, icon: any, contain: boolean, press: string } } param0
+* @param { { text: string, vertical: boolean, image: any, icon: any, contain: boolean } } param0
 */
-export const Label = ({ vertical, text, image, icon, contain, press }) =>
+export const Label = ({ vertical, text, image, icon, contain }) =>
 {
   if (typeof contain !== 'boolean')
     contain = true;
@@ -82,9 +80,6 @@ export const Label = ({ vertical, text, image, icon, contain, press }) =>
   {
     item.add_child(box);
 
-    if (press)
-      item.connect('button-press-event', () => spawnAsync(press));
-  
     return item;
   }
   

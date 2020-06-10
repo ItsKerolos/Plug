@@ -63,7 +63,6 @@ Inside the directory create a file called ```plugin.json``` (required).
 
 | property  | required | type                          | description                                                                                                                   | default                                 |
 |-----------|----------|-------------------------------|-------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------|
-| name      | optional | string                        | the name of the plugin.                                                                                                       | the basename of the plugin's directory. |
 | execute   | required | string                        | the command that should return an output that Plug can parse then render, this can be can be anything e.g. ```sh```, ```node```, etc. | null                                    |
 | main      | optional | string                        | this file path will get passed to the execute command. e.g. ```main.sh```.                                                        | null                                    |
 | interval  | optional | number (milliseconds)         | the time between each execution.                                                                                              | -1                                      |
@@ -135,7 +134,7 @@ echo 'Hello | icon(system-search-symbolic)'
 
 ##### Here's both and a press event:
 ```bash
-echo "Hello | icon(https://fakecdn.io/icon.png) | press('pacman -Su')"
+echo "Hello | icon(https://fakecdn.io/icon.png) | press(pacman -Su)"
 ```
 
 *As you can gather:*  
@@ -155,7 +154,10 @@ echo " | image({ url(/~config/plug/[plug-in]/image.png), width(32), height(48) }
 echo "Hello | vertical | image({ url(system-search-symbolic), width(32) })"
 ```
 ```bash
-echo "Hello | icon(system-search-symbolic) | press('google-chrome-stable')"
+echo "Hello | icon(system-search-symbolic) | press(google-chrome-stable)"
+```
+```bash
+echo "Hello | clipboard(Hello World) | notify(Copied 'Hello World' to clipboard.)"
 ```
 *~Some props like ```image()``` have (optional) parameters like width and height*  
 *To use them, surround them with ```{}``` and separate them with ```,``` and this also this can be escaped with a backslash.*  
@@ -171,12 +173,14 @@ echo " | "
 
 *~All the props have examples on this page but if something is giving you trouble, look at some other plugins code.*
 
-| property | type                   | type examples                                                                                                         | description                                                  | parameters         |
-|----------|------------------------|-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|--------------------|
-| vertical | boolean                | none                                                                                                                  | positions widget vertically instead of horizontally..        | none               |
-| icon     | gicon \| path \| link  | [name]-[thing]-symbolic   </br> </br>  /[name]/[thing].[type]  </br> </br> https://[name]/[thing].[type]  </br> </br> | renders an image in a small square.                          | none               |
-| image    |  gicon \| path \| link | [name]-[thing]-symbolic  </br> </br> /[name]/[thing].[type]  </br> </br> https://[name]/[thing].[type]  </br> </br>   | render an image in full (or specified) size.                 | width </br> height |
-| press    | command                | pacman -Su </br> spotify                                                                                              | an event that executes a command when the widget is pressed. | none               |
+| property | type                   | type examples                                                                                                         | description                                                     | parameters          |
+|----------|------------------------|-----------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
+| vertical  | boolean               | none                                                                                                                  | positions widget vertically instead of horizontally..           | none                |
+| icon      | gicon \| path \| link | name-thing-symbolic </br> </br> /path/name.svg </br> </br> https://website.com/thing.png </br> </br>      | renders an image in a small square.                             | none                |
+| image     | gicon \| path \| link | name-thing-symbolic </br> </br> /path/name.png </br> </br> https://website.net/thing.svg </br> </br>      | render an image in full (or specified) size.                    | width </br> height  |
+| press     | command               | pacman -Su </br> spotify                                                                                              | emits when the widget is pressed, executes a command            | none                |
+| notify    | text                  | Manjaro is better than Ubuntu.                                                                                        | emits when the widget is pressed, sends a notification.         | title </br> message |
+| clipboard | text                  | You copied this text because you clicked a button.                                                                    | emits when the widget is pressed, copies text to the clipboard. | none                |
 
 ---
 

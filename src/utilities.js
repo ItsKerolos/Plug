@@ -2,8 +2,6 @@
 
 const { GLib, Gio } = imports.gi;
 
-const ByteArray = imports.byteArray;
-
 /** need a directory using GJS needlessly complicated api
 * @param { string } dir
 * @param { () => void } callback

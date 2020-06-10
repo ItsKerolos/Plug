@@ -1,4 +1,5 @@
 Performance Issues and Bugs:
+  ☐ fix newlines breaking props parsing
   
 Testing:
   ☐ setup a Jest environment for unit testing
@@ -11,8 +12,6 @@ Testing:
 Features:
   ☐ enable using the image widget with sliders
 
-  ☐ expose main.notify('', '')
-  ☐ expose https://gjs-docs.gnome.org/st10~1.0_api/st.clipboard
   ☐ expose Gio.AppInfo.launch_default_for_uri
 
   ☐ create a preferences window
@@ -21,6 +20,8 @@ Features:
     - add a log window that plug and its plugins can log stuff to for better debugging.
 
 Documentation:
+  ☐ about markup
+
   ☐ screenshots
     - after we write formats to the new widgets,
       since right now argos is still more feature-full.
