@@ -1,14 +1,18 @@
 {
   "env": {
     "es6": true,
-    "gjs/shell-extension": true
+    "gjs/shell-extension": true,
+    "jest/globals": true
   },
   "plugins": [
     "gjs",
+    "jest",
     "security"
   ],
   "extends": [
     "eslint:recommended",
+    "plugin:jest/style",
+    "plugin:jest/recommended",
     "plugin:security/recommended"
   ],
   "parser": "babel-eslint",

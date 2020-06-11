@@ -4,11 +4,9 @@ As much as I love GNOME, I would have never attempted to write an extension for 
 
 GNOME Javascript (GJS) is HELL, it was a huge mess to write this extension (and maintain it), I had to dig through dozens of Github repos to find code examples of what I wanted to do because GNOME docs are a cursed maze.
 
-But... a while ago I found an extension that was called [Argos](https://github.com/p-e-w/argos), it makes developing extensions easier by handling all of the mess away from your brain, and I used it a LOT... until I got greedy and wanted more, so I went to their repo planning to contrib some code for new features, but turns out that [Argos is unmaintained](https://github.com/p-e-w/argos/pull/106#issuecomment-573278743).
+A while ago I found an extension that was called [Argos](https://github.com/p-e-w/argos), it makes developing extensions easier by handling all of the mess away from you, and I used it a lot... until I got greedy and wanted more, so I went to their repo planning to contrib some code for new features, but turns out that [Argos is unmaintained](https://github.com/p-e-w/argos/pull/106#issuecomment-573278743).
 
 Not wanting to give up on my dreams of a more personalized GNOME setup, I decided to go through hell.
-
-Plug is like Argos... except not really, this will never be backward compatible with it.
 
 Documentation:
 

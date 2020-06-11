@@ -1,5 +1,4 @@
 Performance Issues and Bugs:
-  ☐ fix newlines breaking props parsing
   
 Testing:
   ☐ setup a Jest environment for unit testing

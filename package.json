@@ -7,7 +7,9 @@
     "unlink_gnome": "rm ~/.local/share/gnome-shell/extensions/plug@ker0olos",
     "clean": "rm -rf build && mkdir build",
     "build": "npm run clean && cp -r public/* build && rollup -c",
-    "watch": "journalctl -f -o cat /usr/bin/gnome-shell"
+    "watch": "journalctl -f -o cat /usr/bin/gnome-shell",
+    "test": "jest",
+    "test:coverage": "jest --collect-coverage"
   },
   "repository": {
     "type": "git",
@@ -19,14 +21,28 @@
     "url": "https://github.com/ItsKerolos/plug/issues"
   },
   "homepage": "https://github.com/ItsKerolos/plug#readme",
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "jest-extended"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.10.1",
     "@babel/preset-env": "^7.10.1",
+    "@types/jest": "^26.0.0",
     "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.0.1",
     "eslint": "^7.1.0",
     "eslint-plugin-gjs": "file:../eslint-plugin-gjs",
+    "eslint-plugin-jest": "^23.13.2",
     "eslint-plugin-security": "^1.4.0",
     "gnome-shell-extension-types": "0.0.1",
+    "jest": "^26.0.1",
+    "jest-extended": "^0.11.5",
     "rollup": "^2.11.2",
     "rollup-plugin-babel": "^4.4.0"
   }
