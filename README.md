@@ -1,5 +1,7 @@
 ### Rambling
 
+**I have a lot of plans for Plug but I don't have a lot of time to work on them, the development of Plug will happen in bursts whenever I get around it.**
+
 As much as I love GNOME, I would have never attempted to write an extension for it, I researched it a while ago, and when I saw what I have to go through, I promised myself to never get anywhere near it.
 
 GNOME Javascript (GJS) is HELL, it was a huge mess to write this extension (and maintain it), I had to dig through dozens of Github repos to find code examples of what I wanted to do because GNOME docs are a cursed maze.
@@ -17,7 +19,7 @@ Documentation:
 
 ### Installation
 
-**Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (yet anyway).**
+**Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (I will publish it when the project is mature enough).**
 
 Here's how to install the extension manually:  
 This only supports the latest version of GNOME (That's 3.36).
