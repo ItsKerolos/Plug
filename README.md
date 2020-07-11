@@ -1,14 +1,10 @@
-### Rambling
+### Just like Argos, I too moved to bspwm and polybar, and won't be developing this any further.
 
-**I have a lot of plans for Plug but I don't have a lot of time to work on them, the development of Plug will happen in bursts whenever I get around it.**
+~~GNOME Javascript (GJS) is HELL, it was a huge mess to write this extension (and maintain it), I had to dig through dozens of Github repos to find code examples of what I wanted to do because GNOME docs are a cursed maze.~~
 
-As much as I love GNOME, I would have never attempted to write an extension for it, I researched it a while ago, and when I saw what I have to go through, I promised myself to never get anywhere near it.
+~~A while ago I found an extension that was called [Argos](https://github.com/p-e-w/argos), it makes developing extensions easier by handling all of the mess away from you, and I used it a lot... until I got greedy and wanted more, so I went to their repo planning to contrib some code for new features, but turns out that [Argos is unmaintained](https://github.com/p-e-w/argos/pull/106#issuecomment-573278743).~~
 
-GNOME Javascript (GJS) is HELL, it was a huge mess to write this extension (and maintain it), I had to dig through dozens of Github repos to find code examples of what I wanted to do because GNOME docs are a cursed maze.
-
-A while ago I found an extension that was called [Argos](https://github.com/p-e-w/argos), it makes developing extensions easier by handling all of the mess away from you, and I used it a lot... until I got greedy and wanted more, so I went to their repo planning to contrib some code for new features, but turns out that [Argos is unmaintained](https://github.com/p-e-w/argos/pull/106#issuecomment-573278743).
-
-Not wanting to give up on my dreams of a more personalized GNOME setup, I decided to go through hell.
+~~Not wanting to give up on my dreams of a more personalized GNOME setup, I decided to go through hell.~~
 
 Documentation:
 
@@ -19,7 +15,7 @@ Documentation:
 
 ### Installation
 
-**Not available through the [GNOME Extensions Website](https://extensions.gnome.org/) (I will publish it when the project is mature enough).**
+**Not available through the [GNOME Extensions Website](https://extensions.gnome.org/)**
 
 Here's how to install the extension manually:  
 This only supports the latest version of GNOME (That's 3.36).
@@ -43,7 +39,7 @@ After that just reload the shell and make sure Plug is enabled in the Extensions
 Plug automatically loads new plugins, don't reload the shell or do anything else.
 
 ```bash
-cd ~/.config/plug
+cd ~/.config/plug 
 ```
 ```
 git clone https://github.com/[user]/[plug-in-name]
